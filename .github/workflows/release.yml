@@ -51,9 +51,10 @@ jobs:
       - name: Locate plugin zip
         id: artifact
         run: |
-          zip_path="$(find target -iname '*.zip' | head -n1)"
-          if [ -z "$zip_path" ]; then
-            echo "no plugin zip found under target/" >&2
+          zip_path="target/intellij-hocon-${PLUGIN_VERSION}.zip"
+          if [ ! -f "$zip_path" ]; then
+            echo "expected plugin zip not found at $zip_path" >&2
+            find target -maxdepth 1 -iname '*.zip' >&2
             exit 1
           fi
           echo "path=$zip_path" >> "$GITHUB_OUTPUT"
