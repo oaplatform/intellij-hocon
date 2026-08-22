@@ -18,3 +18,5 @@
 target/
 out/
 .bsp
+*.iml
+/CLAUDE.md

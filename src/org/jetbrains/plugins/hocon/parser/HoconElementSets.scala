@@ -12,7 +12,7 @@ object HoconElementSets {
   final val Literal =
     Null | Boolean | Number | StringValue
   final val Value =
-    Literal | Object | Array | Substitution | Concatenation
+    Literal | Object | BlockObject | Array | BlockArray | Substitution | Concatenation
   final val ForcedLeafBlock =
     FieldKey | SubstitutionKey | Path | UnquotedString | Number | Null | Boolean | TokenType.ERROR_ELEMENT
 }

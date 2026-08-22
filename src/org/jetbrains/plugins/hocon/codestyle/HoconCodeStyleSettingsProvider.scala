@@ -7,7 +7,7 @@ import com.intellij.psi.codeStyle.{CodeStyleConfigurable, CodeStyleSettings, Cod
 import org.jetbrains.plugins.hocon.lang.HoconLanguage
 
 class HoconCodeStyleSettingsProvider extends CodeStyleSettingsProvider {
-  override def getConfigurableDisplayName = "HOCON"
+  override def getConfigurableDisplayName = "OAP-HOCON"
 
   override def getLanguage: Language = HoconLanguage
 

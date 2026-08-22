@@ -1,7 +1,7 @@
 import org.jetbrains.sbtidea.Keys._
 
 ThisBuild / scalaVersion := "2.13.18"
-ThisBuild / intellijPluginName := "intellij-hocon"
+ThisBuild / intellijPluginName := "oap-intellij-hocon"
 ThisBuild / intellijBuild := "261.25134.121"
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("21"))
 // Cache the IntelliJ SDK (~800MB) that the sbt-idea-plugin downloads on build load; the default
@@ -34,7 +34,7 @@ lazy val hocon = project
   .in(file("."))
   .enablePlugins(SbtIdeaPlugin)
   .settings(
-    version := sys.env.getOrElse("PLUGIN_VERSION", "2026.2.0-oap"),
+    version := sys.env.getOrElse("PLUGIN_VERSION", "2026.2.1-OAP"),
     Compile / scalaSource := baseDirectory.value / "src",
     Test / scalaSource := baseDirectory.value / "test",
     Compile / resourceDirectory := baseDirectory.value / "resources",

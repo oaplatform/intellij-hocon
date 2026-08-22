@@ -243,7 +243,11 @@ class HoconPsiParser extends PsiParser {
       marker.setCustomEdgeTokenBinders(DocumentationCommentsBinder, WhitespacesBinders.DEFAULT_RIGHT_BINDER)
     }
 
-    def parseKeyedField(first: Boolean): Unit = {
+    def parseKeyedField(first: Boolean, keyStartColumn: Int = -1): Unit = {
+      // Column of the field's own outermost key (e.g. `a` in `a.b.c = ...`), used as the reference column
+      // a block-array value's `-` markers must be indented past. Computed before the key is consumed.
+      val startColumn = if (first) currentColumn() else keyStartColumn
+
       if (first) {
         suppressNewLine()
       }
@@ -252,13 +256,15 @@ class HoconPsiParser extends PsiParser {
       tryParseKey(first, substitution = false)
 
       if (pass(Period.noNewLine)) {
-        parseKeyedField(first = false)
+        parseKeyedField(first = false, startColumn)
         marker.done(PrefixedField)
       } else {
         if (matches(LBrace)) {
           parseObject()
         } else if (pass(KeyValueSeparator)) {
-          if (matches(ValueStart)) {
+          if (matchesBlockArrayDash(startColumn)) {
+            parseBlockArrayValue(startColumn)
+          } else if (matches(ValueStart)) {
             parseValue()
           } else {
             errorUntil(ValueEnding.orNewLineOrEof, "expected value for object field")
@@ -438,6 +444,101 @@ class HoconPsiParser extends PsiParser {
       }
 
       (!gotPeriod || noPeriodWhitespace) && (!gotDecimalPart || noDecimalPartWhitespace) && isValid
+    }
+
+    // Column (0-based, tabs counted as 1) of the token the builder is currently positioned at, computed by
+    // scanning back to the preceding '\n' in the raw source text. Used only by the block-array grammar -
+    // nothing else in this parser is indentation-sensitive.
+    def currentColumn(): Int = {
+      val text = builder.getOriginalText
+      val offset = builder.getCurrentOffset
+      var i = offset - 1
+      var col = 0
+      while (i >= 0 && text.charAt(i) != '\n') {
+        i -= 1
+        col += 1
+      }
+      col
+    }
+
+    // A standalone '-' token (i.e. not fused with following chars like `-item`/`-5`), immediately followed
+    // by whitespace or EOF (so `-{` is deliberately never recognized as a block-array marker).
+    def isBlockArrayDash: Boolean =
+      matchesUnquoted("-") && {
+        val next = builder.rawLookup(1)
+        next == null || Whitespace.contains(next)
+      }
+
+    // Whether the current position starts a block-array item list for a field whose own key started at
+    // minColumn: a '-' marker, on its own line, indented further than the field's key.
+    //
+    // isBlockArrayDash is checked first (it touches builder.getTokenType() via matchesUnquoted): PsiBuilder's
+    // rawLookup/rawTokenIndex - which newLinesBeforeCurrentToken depends on - only reflect the current
+    // position correctly once getTokenType() has been queried there at least once. Every other caller of
+    // newLinesBeforeCurrentToken goes through matches(), whose own tokenSet.contains(getTokenType) check
+    // always runs first; this is the one place that isn't already guarded that way, so the order matters.
+    def matchesBlockArrayDash(minColumn: Int): Boolean =
+      isBlockArrayDash && newLinesBeforeCurrentToken && currentColumn() > minColumn
+
+    // Pure lookahead (always rolls back): does the content right after a '-' marker look like a key
+    // (optionally dotted) followed by '{' or a key/value separator - i.e. should this item be parsed as an
+    // implicit object field rather than a plain scalar/array/object value? Any imprecision here can only
+    // misclassify malformed input, since the real parse afterwards always goes through the unmodified
+    // parseBlockObjectEntries/parseValue productions.
+    def looksLikeObjectFieldStart(): Boolean = {
+      val trial = builder.mark()
+
+      @tailrec
+      def consumeKeyParts(gotAny: Boolean): Boolean =
+        if (matches(UnquotedChars.noNewLine) || matches(StringLiteral.noNewLine)) {
+          advanceLexer()
+          consumeKeyParts(gotAny = true)
+        } else if (gotAny && pass(Period.noNewLine)) {
+          consumeKeyParts(gotAny = true)
+        } else gotAny
+
+      val gotKey = consumeKeyParts(gotAny = false)
+      val result = gotKey && (matches(LBrace) || matches(KeyValueSeparator))
+      trial.rollbackTo()
+      result
+    }
+
+    // Sequence of `-`-prefixed items, one per line, each indented further than minColumn (the enclosing
+    // field's own key column). Ends at EOF, a non-dash token, or a dash indented at or before minColumn.
+    def parseBlockArrayValue(minColumn: Int): Unit = {
+      val marker = builder.mark()
+
+      while (matchesBlockArrayDash(minColumn)) {
+        advanceLexer() // consume '-'
+        if (looksLikeObjectFieldStart()) {
+          val itemColumn = currentColumn()
+          val objMarker = builder.mark()
+          parseBlockObjectEntries(itemColumn)
+          objMarker.done(BlockObject)
+        } else if (matches(ValueStart)) {
+          parseValue()
+        } else {
+          errorUntil(ValueEnding.orNewLineOrEof, "expected array element value after '-'")
+        }
+      }
+
+      marker.done(BlockArray)
+    }
+
+    // The implicit object formed by one block-array item: its first field (on the '-' marker's own line)
+    // plus every following field indented to exactly itemColumn (the first field's own column). Reuses
+    // parseObjectField verbatim, so nested prefixed keys, doc comments and nested values all work unchanged.
+    def parseBlockObjectEntries(itemColumn: Int): Unit = {
+      val marker = builder.mark()
+
+      parseObjectField()
+      // matches() first: see matchesBlockArrayDash for why newLinesBeforeCurrentToken must not be the first
+      // getTokenType()-touching call at a fresh position.
+      while (matches(ObjectEntryStart) && newLinesBeforeCurrentToken && currentColumn() == itemColumn) {
+        parseObjectField()
+      }
+
+      marker.done(ObjectEntries)
     }
 
     def parseArray(): Unit = {
