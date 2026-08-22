@@ -189,13 +189,14 @@ class HoconLexer extends LexerBase {
 
     @tailrec def headerTailValid(idx: Int): Boolean =
       if (idx >= endOffset) true
-      else input.charAt(idx) match {
-        case '\n' => true
-        case '#' => true
-        case '/' if idx + 1 < endOffset && input.charAt(idx + 1) == '/' => true
-        case ch if isHoconWhitespace(ch) => headerTailValid(idx + 1)
-        case _ => false
-      }
+      else
+        input.charAt(idx) match {
+          case '\n' => true
+          case '#' => true
+          case '/' if idx + 1 < endOffset && input.charAt(idx + 1) == '/' => true
+          case ch if isHoconWhitespace(ch) => headerTailValid(idx + 1)
+          case _ => false
+        }
 
     if (!headerTailValid(afterHeader)) None
     else {

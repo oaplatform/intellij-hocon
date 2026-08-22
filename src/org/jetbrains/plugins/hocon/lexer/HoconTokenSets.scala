@@ -25,8 +25,7 @@ object HoconTokenSets {
   final val SimpleValuePart = UnquotedCharsOrParens | Period | StringLiteral
   final val PathStart = UnquotedCharsOrParens | StringLiteral | Period | Dollar | BadCharacter
   final val SubstitutionPathStart = PathStart | KeyValueSeparator
-  final val ValueStart = SimpleValuePart | LBrace | LBracket | Dollar | KeyValueSeparator | BadCharacter |
-    BlockScalar
+  final val ValueStart = SimpleValuePart | LBrace | LBracket | Dollar | KeyValueSeparator | BadCharacter | BlockScalar
   final val ObjectEntryStart = PathStart | UnquotedCharsOrParens
 
   case class Matcher(tokenSet: TokenSet, requireNoNewLine: Boolean, matchNewLine: Boolean, matchEof: Boolean) {

@@ -864,9 +864,8 @@ object HString {
       val endsWithNewline = rawBody.endsWith("\n")
       val rawLines = rawBody.split("\n", -1).toVector
       val contentLines = if (endsWithNewline) rawLines.init else rawLines
-      val baseIndent = contentLines
-        .find(_.exists(ch => ch != ' ' && ch != '\t'))
-        .map(_.takeWhile(ch => ch == ' ' || ch == '\t').length)
+      val baseIndent =
+        contentLines.find(_.exists(ch => ch != ' ' && ch != '\t')).map(_.takeWhile(ch => ch == ' ' || ch == '\t').length)
 
       baseIndent match {
         case None => ""
