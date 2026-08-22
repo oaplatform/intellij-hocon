@@ -65,7 +65,7 @@ class HoconColorSettingsPage extends ColorSettingsPage {
     SyntaxHighlighterFactory.getSyntaxHighlighter(HoconLanguage, null, null)
 
   def getDisplayName =
-    "OAP-HOCON"
+    "HOCON"
 
   def getColorDescriptors: Array[ColorDescriptor] =
     Array.empty

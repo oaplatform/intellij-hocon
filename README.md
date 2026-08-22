@@ -92,3 +92,38 @@
   
   ![autocompletion.gif](img/autocompletion.gif)
   
+## OAP extensions (non-standard)
+
+This fork adds YAML-style, indentation-delimited syntax for arrays and objects as an alternative to `[...]`
+and `{...}`. This is **not** part of the [HOCON spec](https://github.com/lightbend/config/blob/master/HOCON.md)
+and isn't understood by `ConfigFactory.load` or any other standard HOCON parser - it's a deliberate extension
+for use with [oap-config](https://github.com/oaplatform/config), the Java OAP HOCON implementation these
+extensions are modeled after and meant to stay compatible with.
+
+* **Block arrays** - a `-`-prefixed list item per line, instead of `[...]`:
+
+  ```hocon
+  my_array:
+    - item1
+    - item2
+
+  my_object_array:
+    - field1.a = fg
+      field2 = 3
+  ```
+
+  Multiple key/value lines indented to the same column as an item's first field become an implicit object for
+  that item (`field1.a = fg` and `field2 = 3` above form one object).
+
+* **Block objects** - a bracket-less object value, with fields only distinguished by indentation:
+
+  ```hocon
+  a:
+    v:
+      c = 5
+      d = 6
+  ```
+
+  Both extensions trigger only when nothing else follows the `:`/`=` on the same line, and nest arbitrarily
+  (a block array's item may itself have a block-object or block-array field, and vice versa).
+  

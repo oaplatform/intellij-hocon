@@ -17,7 +17,7 @@ class HoconCodeStyleSettingsProvider extends CodeStyleSettingsProvider {
     settings: CodeStyleSettings,
     modelSettings: CodeStyleSettings,
   ): CodeStyleConfigurable =
-    new CodeStyleAbstractConfigurable(settings, modelSettings, "HOCON") {
+    new CodeStyleAbstractConfigurable(settings, modelSettings, "OAP-HOCON") {
       override protected def createPanel(settings: CodeStyleSettings): TabbedLanguageCodeStylePanel =
         new TabbedLanguageCodeStylePanel(HoconLanguage, getCurrentSettings, settings) {}
     }
