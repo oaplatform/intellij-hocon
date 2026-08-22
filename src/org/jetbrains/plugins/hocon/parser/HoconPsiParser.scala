@@ -264,6 +264,8 @@ class HoconPsiParser extends PsiParser {
         } else if (pass(KeyValueSeparator)) {
           if (matchesBlockArrayDash(startColumn)) {
             parseBlockArrayValue(startColumn)
+          } else if (matchesBlockObjectStart(startColumn)) {
+            parseBlockObjectValue()
           } else if (matches(ValueStart)) {
             parseValue()
           } else {
@@ -480,22 +482,33 @@ class HoconPsiParser extends PsiParser {
     def matchesBlockArrayDash(minColumn: Int): Boolean =
       isBlockArrayDash && newLinesBeforeCurrentToken && currentColumn() > minColumn
 
-    // Pure lookahead (always rolls back): does the content right after a '-' marker look like a key
-    // (optionally dotted) followed by '{' or a key/value separator - i.e. should this item be parsed as an
-    // implicit object field rather than a plain scalar/array/object value? Any imprecision here can only
-    // misclassify malformed input, since the real parse afterwards always goes through the unmodified
+    // Pure lookahead (always rolls back): does the content at the current position look like a key
+    // (optionally dotted) followed by '{' or a key/value separator - i.e. should this be parsed as an
+    // implicit/nested object field rather than a plain scalar/array/object value? Any imprecision here can
+    // only misclassify malformed input, since the real parse afterwards always goes through the unmodified
     // parseBlockObjectEntries/parseValue productions.
-    def looksLikeObjectFieldStart(): Boolean = {
+    //
+    // firstTokenMayFollowNewline: false for a block-array item's own key text, which always sits on the
+    // same line right after the '-' marker (so the ordinary .noNewLine key-part matchers apply, same as
+    // regular key parsing everywhere else). true for a block-object's trigger check, where the very key
+    // being tested is itself the first thing on a new line - that's the condition being detected, not
+    // something to reject - while dotted continuation parts (`a.b`) still may not themselves cross a
+    // newline, same as normal key parsing.
+    def looksLikeObjectFieldStart(firstTokenMayFollowNewline: Boolean = false): Boolean = {
       val trial = builder.mark()
 
       @tailrec
-      def consumeKeyParts(gotAny: Boolean): Boolean =
-        if (matches(UnquotedChars.noNewLine) || matches(StringLiteral.noNewLine)) {
+      def consumeKeyParts(gotAny: Boolean): Boolean = {
+        val allowNewline = !gotAny && firstTokenMayFollowNewline
+        val unquotedMatcher = if (allowNewline) UnquotedChars: Matcher else UnquotedChars.noNewLine
+        val stringMatcher = if (allowNewline) StringLiteral: Matcher else StringLiteral.noNewLine
+        if (matches(unquotedMatcher) || matches(stringMatcher)) {
           advanceLexer()
           consumeKeyParts(gotAny = true)
         } else if (gotAny && pass(Period.noNewLine)) {
           consumeKeyParts(gotAny = true)
         } else gotAny
+      }
 
       val gotKey = consumeKeyParts(gotAny = false)
       val result = gotKey && (matches(LBrace) || matches(KeyValueSeparator))
@@ -539,6 +552,25 @@ class HoconPsiParser extends PsiParser {
       }
 
       marker.done(ObjectEntries)
+    }
+
+    // Whether the current position starts a bracket-less, indentation-delimited object value for a field
+    // whose own key started at minColumn: a key-like token, on its own line, indented further than the
+    // field's key, followed by '{' or a key/value separator. looksLikeObjectFieldStart() is checked first
+    // (it itself starts with a matches() call), for the same reason isBlockArrayDash is checked before
+    // newLinesBeforeCurrentToken in matchesBlockArrayDash.
+    def matchesBlockObjectStart(minColumn: Int): Boolean =
+      looksLikeObjectFieldStart(firstTokenMayFollowNewline = true) && newLinesBeforeCurrentToken &&
+        currentColumn() > minColumn
+
+    // A single indentation-delimited object value with no dash marker and no braces: the first field
+    // establishes the column, every following field at that exact column joins it. Reuses
+    // parseBlockObjectEntries verbatim - the same production a block-array item's implicit object uses.
+    def parseBlockObjectValue(): Unit = {
+      val itemColumn = currentColumn()
+      val marker = builder.mark()
+      parseBlockObjectEntries(itemColumn)
+      marker.done(BlockObject)
     }
 
     def parseArray(): Unit = {

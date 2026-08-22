@@ -262,11 +262,12 @@ class HoconFormatter(settings: CodeStyleSettings) {
           (Array, Value.extractor() | Comma | Comment.extractor()) |
           (BlockArray, UnquotedChars | Value.extractor() | Comment.extractor()) =>
         Indent.getNormalIndent
-      // BlockArray already gets its own Indent.getNormalIndent step (above) relative to whatever parent it's
-      // in; giving it a second, continuation-indent step here (as the generic ValuedField/Value.extractor()
-      // case below would) double-stacks and pushes its dash two levels deep instead of one. Must come before
-      // that generic case - BlockArray is a member of the Value token set, so match order matters.
-      case (ValuedField, BlockArray) =>
+      // BlockArray/BlockObject already get their own Indent.getNormalIndent step (above) relative to
+      // whatever parent they're in; giving them a second, continuation-indent step here (as the generic
+      // ValuedField/Value.extractor() case below would) double-stacks and pushes their contents two levels
+      // deep instead of one. Must come before that generic case - both are members of the Value token set,
+      // so match order matters.
+      case (ValuedField, BlockArray | BlockObject) =>
         Indent.getNoneIndent
       case (Include, Included) | (ValuedField, KeyValueSeparator.extractor() | Value.extractor()) =>
         Indent.getContinuationIndent

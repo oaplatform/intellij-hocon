@@ -16,6 +16,10 @@
         <ul>
         <li>Block arrays (YAML-style)</li>
         </ul>
+        2026.2.2:
+        <ul>
+        <li>Block objects (YAML-style)</li>
+        </ul>
         ]]>
     </change-notes>
 
@@ -62,7 +66,7 @@
         <projectService serviceImplementation="org.jetbrains.plugins.hocon.settings.HoconProjectSettings"/>
         <projectConfigurable groupId="language"
                              instance="org.jetbrains.plugins.hocon.settings.HoconProjectSettingsConfigurable"
-                             displayName="HOCON"/>
+                             displayName="OAP-HOCON"/>
 
         <localInspection language="HOCON"
                          implementationClass="org.jetbrains.plugins.hocon.ref.HoconIncludeResolutionInspection"
@@ -100,7 +104,7 @@
     <actions>
         <action class="org.jetbrains.plugins.hocon.navigation.HoconGotoNextAction" id="HoconGotoNext"
                 text="HOCON: Go to Next Definition"
-                description="Navigates to the next definition of a property in a HOCON file"
+                description="Navigates to the next definition of a property in a OAP-HOCON file"
                 use-shortcut-of="GotoImplementation"/>
         <action class="org.jetbrains.plugins.hocon.navigation.HoconGotoPrevAction" id="HoconGotoPrev"
                 text="HOCON: Go to Previous Definition"
