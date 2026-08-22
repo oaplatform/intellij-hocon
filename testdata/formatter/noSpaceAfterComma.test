@@ -1,5 +1,5 @@
 <settings>
-  <codeStyleSettings language="HOCON">
+  <codeStyleSettings language="OAP-HOCON">
     <option name="SPACE_AFTER_COMMA" value="false" />
   </codeStyleSettings>
 </settings>

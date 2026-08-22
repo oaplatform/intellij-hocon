@@ -392,6 +392,8 @@ class HoconPsiParser extends PsiParser {
             parseUnquotedString(StringValue, ValueUnquotedChars.noNewLine, partCount == 0, ValueEnding.orNewLineOrEof)
           } else if (matches(StringLiteral)) {
             parseStringLiteral(StringValue)
+          } else if (matches(BlockScalar)) {
+            parseStringLiteral(StringValue)
           } else {
             tokenError("characters $ \" { } [ ] : = , + # ` ^ ? ! @ * & \\ are forbidden unquoted")
           }

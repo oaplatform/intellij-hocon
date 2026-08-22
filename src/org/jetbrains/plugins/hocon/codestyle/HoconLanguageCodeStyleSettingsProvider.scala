@@ -136,6 +136,17 @@ class HoconLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         |  some.very.long.path =
         |    very very very long value
         |}
+        |yaml_style:
+        |  block_array:
+        |    - item1
+        |    - item2
+        |  block_object:
+        |    key = value
+        |    nested:
+        |      deeper = true
+        |  block_scalar: |
+        |    line one
+        |    line two
         | """.stripMargin.trim
 
     case SettingsType.SPACING_SETTINGS =>
@@ -149,6 +160,13 @@ class HoconLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         |  subst = ${some.path}
         |  optsubst = ${?some.path}
         |}
+        |yaml_style:
+        |  block_array:
+        |    - item1
+        |    - item2
+        |  block_object:
+        |    key: value
+        |    foo = bar
         | """.stripMargin.trim
 
     case SettingsType.WRAPPING_AND_BRACES_SETTINGS =>
@@ -169,6 +187,14 @@ class HoconLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         |//comment originally at first column
         |
         |}
+        |yaml_style:
+        |  block_array:
+        |    - item1
+        |    - item2
+        |  block_object:
+        |    key = value
+        |    nested:
+        |      deeper = true
         | """.stripMargin.trim
 
     case SettingsType.BLANK_LINES_SETTINGS =>

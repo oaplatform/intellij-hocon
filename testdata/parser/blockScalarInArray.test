@@ -1,0 +1,21 @@
+arr: [|
+  a
+  b
+]
+-----
+HOCON_FILE
+  HObjectEntries(OBJECT_ENTRIES)
+    HObjectField(OBJECT_FIELD)
+      HValuedField(VALUED_FIELD)
+        HFieldKey(FIELD_KEY)
+          HKeyPart(KEY_PART)
+            HUnquotedString(UNQUOTED_STRING)
+              PsiElement(UNQUOTED_CHARS)('arr')
+        PsiElement(COLON)(':')
+        PsiWhiteSpace(' ')
+        HArray(ARRAY)
+          PsiElement(LBRACKET)('[')
+          HStringValue(STRING_VALUE)
+            PsiElement(LITERAL_BLOCK_SCALAR)('|\n  a\n  b')
+          PsiWhiteSpace('\n')
+          PsiElement(RBRACKET)(']')

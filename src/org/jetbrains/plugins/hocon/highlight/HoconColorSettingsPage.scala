@@ -29,7 +29,9 @@ class HoconColorSettingsPage extends ColorSettingsPage {
        |    <unquotedstring>unquoted string </unquotedstring><badchar>*</badchar><comma>,</comma>
        |    <quotedstring>"quo</quotedstring><validstringescape>\\n</validstringescape><quotedstring>ted</quotedstring><invalidstringescape>\\d</invalidstringescape><quotedstring> string"</quotedstring><comma>,</comma>
        |    <substsign>$$</substsign><substbraces>{</substbraces><optsubstsign>?</optsubstsign><substkey>substitution</substkey><dot>.</dot><substkey>inner</substkey><substbraces>}</substbraces><comma>,</comma>
-       |    <multilinestring>${"\"\"\""}multiline\n    multiline${"\"\"\""}</multilinestring>
+       |    <multilinestring>${"\"\"\""}multiline\n    multiline${"\"\"\""}</multilinestring><comma>,</comma>
+       |    <litblockscalar>|\n    literal block\n    scalar</litblockscalar><comma>,</comma>
+       |    <foldblockscalar>>\n    folded block\n    scalar</foldblockscalar>
        |  <brackets>]</brackets>
        |<braces>}</braces>
        |""".stripMargin.trim
@@ -43,6 +45,8 @@ class HoconColorSettingsPage extends ColorSettingsPage {
     "number" -> HHC.Number,
     "quotedstring" -> HHC.QuotedString,
     "multilinestring" -> HHC.MultilineString,
+    "litblockscalar" -> HHC.LiteralBlockScalar,
+    "foldblockscalar" -> HHC.FoldedBlockScalar,
     "validstringescape" -> HHC.ValidStringEscape,
     "invalidstringescape" -> HHC.InvalidStringEscape,
     "brackets" -> HHC.Brackets,
@@ -65,7 +69,7 @@ class HoconColorSettingsPage extends ColorSettingsPage {
     SyntaxHighlighterFactory.getSyntaxHighlighter(HoconLanguage, null, null)
 
   def getDisplayName =
-    "HOCON"
+    "OAP-HOCON"
 
   def getColorDescriptors: Array[ColorDescriptor] =
     Array.empty
@@ -84,6 +88,8 @@ object HoconColorSettingsPage {
     "Number" -> HHC.Number,
     "Quoted string" -> HHC.QuotedString,
     "Multiline string" -> HHC.MultilineString,
+    "'|' block" -> HHC.LiteralBlockScalar,
+    "'>' block" -> HHC.FoldedBlockScalar,
     "Valid string escape" -> HHC.ValidStringEscape,
     "Invalid string escape" -> HHC.InvalidStringEscape,
     "Brackets" -> HHC.Brackets,

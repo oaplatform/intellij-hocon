@@ -8,7 +8,7 @@ import javax.swing.JComponent
 class HoconProjectSettingsConfigurable(project: Project) extends Configurable {
   private var panel = new HoconProjectSettingsPanel(project)
 
-  override def getDisplayName = "HOCON"
+  override def getDisplayName = "OAP-HOCON"
 
   override def isModified: Boolean = panel.isModified
 
