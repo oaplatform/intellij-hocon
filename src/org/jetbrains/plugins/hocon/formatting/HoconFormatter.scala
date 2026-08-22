@@ -34,7 +34,7 @@ class HoconFormatter(settings: CodeStyleSettings) {
     (parentType, rightChildType) match {
       case (_, RBrace) => customSettings.KEEP_BLANK_LINES_BEFORE_RBRACE
       case (_, RBracket) => customSettings.KEEP_BLANK_LINES_BEFORE_RBRACKET
-      case (Array, _) => customSettings.KEEP_BLANK_LINES_IN_LISTS
+      case (Array | BlockArray, _) => customSettings.KEEP_BLANK_LINES_IN_LISTS
       case _ => customSettings.KEEP_BLANK_LINES_IN_OBJECTS
     }
 
@@ -120,6 +120,10 @@ class HoconFormatter(settings: CodeStyleSettings) {
           normalSpacing(commonSettings.SPACE_WITHIN_BRACKETS)
 
       case (UnquotedChars, Included) =>
+        normalSpacing(shouldBeSpace = true)
+
+      // block-array '-' item marker, always followed by exactly one space before its value/implicit object
+      case (UnquotedChars, Value.extractor()) =>
         normalSpacing(shouldBeSpace = true)
 
       case (FieldKey, Object) =>
@@ -210,6 +214,12 @@ class HoconFormatter(settings: CodeStyleSettings) {
 
     val arrayValueAlignment =
       if (customSettings.LISTS_ALIGN_WHEN_MULTILINE) Alignment.createAlignment else null
+
+    // Unconditional (not a configurable style choice, unlike the two above): every field of one block-array
+    // item - the first one, right after '- ', and every continuation field on its own line below - must land
+    // in the same column. Indent alone can't express "align with wherever the first field happened to start,"
+    // only "N levels from the parent," so this hanging-indent relationship needs its own always-on Alignment.
+    val blockObjectFieldAlignment = Alignment.createAlignment()
   }
 
   def getWrap(wrapCache: WrapCache, parent: ASTNode, child: ASTNode): Wrap =
@@ -240,14 +250,24 @@ class HoconFormatter(settings: CodeStyleSettings) {
       case (Array, Value.extractor() | Comment.extractor()) =>
         alignmentCache.arrayValueAlignment
 
+      case (BlockObject, KeyedField.extractor() | Comment.extractor()) =>
+        alignmentCache.blockObjectFieldAlignment
+
       case _ => null
     }
 
   def getIndent(parent: ASTNode, child: ASTNode): Indent =
     (parent.getElementType, child.getElementType) match {
-      case (Object, Include | KeyedField.extractor() | Comma | Comment.extractor()) |
-          (Array, Value.extractor() | Comma | Comment.extractor()) =>
+      case (Object | BlockObject, Include | KeyedField.extractor() | Comma | Comment.extractor()) |
+          (Array, Value.extractor() | Comma | Comment.extractor()) |
+          (BlockArray, UnquotedChars | Value.extractor() | Comment.extractor()) =>
         Indent.getNormalIndent
+      // BlockArray already gets its own Indent.getNormalIndent step (above) relative to whatever parent it's
+      // in; giving it a second, continuation-indent step here (as the generic ValuedField/Value.extractor()
+      // case below would) double-stacks and pushes its dash two levels deep instead of one. Must come before
+      // that generic case - BlockArray is a member of the Value token set, so match order matters.
+      case (ValuedField, BlockArray) =>
+        Indent.getNoneIndent
       case (Include, Included) | (ValuedField, KeyValueSeparator.extractor() | Value.extractor()) =>
         Indent.getContinuationIndent
       case _ =>
@@ -256,7 +276,7 @@ class HoconFormatter(settings: CodeStyleSettings) {
     }
 
   def getChildIndent(parent: ASTNode): Indent = parent.getElementType match {
-    case Object | Array => Indent.getNormalIndent
+    case Object | Array | BlockArray | BlockObject => Indent.getNormalIndent
     case Include | KeyedField.extractor() => Indent.getContinuationIndent
     case _ => Indent.getNoneIndent
   }
@@ -264,13 +284,14 @@ class HoconFormatter(settings: CodeStyleSettings) {
   def getChildAlignment(alignmentCache: AlignmentCache, parent: ASTNode): Alignment = parent.getElementType match {
     case Object => alignmentCache.objectEntryAlignment
     case Array => alignmentCache.arrayValueAlignment
+    case BlockObject => alignmentCache.blockObjectFieldAlignment
     case _ => null
   }
 
   def getChildren(node: ASTNode): Iterator[ASTNode] = node.getElementType match {
     case ForcedLeafBlock.extractor() =>
       Iterator.empty
-    case HoconFileElementType | Object =>
+    case HoconFileElementType | Object | BlockObject =>
       // immediately expand ObjectEntries element
       node.childrenIterator.flatMap(child =>
         child.getElementType match {

@@ -1,0 +1,26 @@
+my_array:
+  - item1
+  - item2
+-----
+HOCON_FILE
+  HObjectEntries(OBJECT_ENTRIES)
+    HObjectField(OBJECT_FIELD)
+      HValuedField(VALUED_FIELD)
+        HFieldKey(FIELD_KEY)
+          HKeyPart(KEY_PART)
+            HUnquotedString(UNQUOTED_STRING)
+              PsiElement(UNQUOTED_CHARS)('my_array')
+        PsiElement(COLON)(':')
+        PsiWhiteSpace('\n  ')
+        HArray(BLOCK_ARRAY)
+          PsiElement(UNQUOTED_CHARS)('-')
+          PsiWhiteSpace(' ')
+          HStringValue(STRING_VALUE)
+            HUnquotedString(UNQUOTED_STRING)
+              PsiElement(UNQUOTED_CHARS)('item1')
+          PsiWhiteSpace('\n  ')
+          PsiElement(UNQUOTED_CHARS)('-')
+          PsiWhiteSpace(' ')
+          HStringValue(STRING_VALUE)
+            HUnquotedString(UNQUOTED_STRING)
+              PsiElement(UNQUOTED_CHARS)('item2')

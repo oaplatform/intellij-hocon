@@ -1,9 +1,9 @@
 <idea-plugin>
     <id>org.jetbrains.plugins.hocon</id>
     <name>HOCON</name>
-    <description>Standalone HOCON plugin for IntelliJ IDEA</description>
-    <version>2026.1.99-SNAPSHOT</version>
-    <vendor>Roman Janusz, AVSystem, JetBrains</vendor>
+    <description>OAP HOCON plugin for IntelliJ IDEA</description>
+    <version>2026.2.1-OAP</version>
+    <vendor>Igor Petrenko, Roman Janusz, AVSystem, JetBrains</vendor>
     <idea-version since-build="253.0" until-build="270.0"/>
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
@@ -12,22 +12,9 @@
 
     <change-notes>
         <![CDATA[
-        2019.3.3:
+        2026.2.1:
         <ul>
-        <li>'Find Usages' includes occurrences of HOCON paths in string literals</li>
-        <li>fixed 'Find Usages' on Java/Scala classes to search in HOCON values</li>
-        <li>include resolution works for relative file(...) includes - module root is assumed as working dir</li>
-        <li>fixed include resolution for files outside classpath (sources and libraries)</li>
-        <li>fixed 'Go to Prev/Next` actions in readonly files</li>
-        </ul>
-        2019.3.2 - bulk feature update implementing semantics-related features of HOCON:
-        <ul>
-        <li>substitution resolution, navigation through substitutions with 'Go To Declaration' action</li>
-        <li>detection of HOCON path references in string literals of other languages</li>
-        <li>go to prev/next HOCON definition (like 'Super Method' &amp; 'Implementation(s)' actions)</li>
-        <li>'Quick Documentation' action for displaying documentation of HOCON entries</li>
-        <li>'Find Usages' action for searching usages of HOCON paths</li>
-        <li>autocompletion of HOCON keys in objects and substitutions with value and type hints and documentation</li>
+        <li>Block arrays (YAML-style)</li>
         </ul>
         ]]>
     </change-notes>

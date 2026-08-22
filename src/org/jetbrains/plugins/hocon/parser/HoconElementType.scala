@@ -101,6 +101,33 @@ object HoconElementType {
     */
   val Array = new HoconElementType("ARRAY")
 
+  /** YAML-style block array, i.e. a sequence of `-`-prefixed values, one per line, grouped by indentation instead of
+    * brackets:
+    *
+    * {{{
+    *   my_array:
+    *     - item1
+    *     - item2
+    * }}}
+    *
+    * Maps to the same PSI class as [[Array]] (see `HoconParserDefinition`) - only the parser/formatter need to
+    * distinguish it from a bracketed array.
+    */
+  val BlockArray = new HoconElementType("BLOCK_ARRAY")
+
+  /** The implicit object formed when a [[BlockArray]] item is followed by further key/value lines indented to the same
+    * column as the item's first field:
+    *
+    * {{{
+    *   - field1.a = fg
+    *     field2 = 3
+    * }}}
+    *
+    * Maps to the same PSI class as [[Object]] (see `HoconParserDefinition`) and wraps a real [[ObjectEntries]] child,
+    * exactly like a brace-less file root does.
+    */
+  val BlockObject = new HoconElementType("BLOCK_OBJECT")
+
   /** HOCON substitution, i.e. path enclosed in `${}` (with optional `?` sign)
     */
   val Substitution = new HoconElementType("SUBSTITUTION")

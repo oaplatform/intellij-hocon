@@ -61,6 +61,8 @@ object HoconParserDefinition {
     case FieldKey => new HFieldKey(ast)
     case SubstitutionKey => new HSubstitutionKey(ast)
     case Array => new HArray(ast)
+    case BlockArray => new HArray(ast)
+    case BlockObject => new HObject(ast)
     case Substitution => new HSubstitution(ast)
     case Concatenation => new HConcatenation(ast)
     case UnquotedString => new HUnquotedString(ast)
