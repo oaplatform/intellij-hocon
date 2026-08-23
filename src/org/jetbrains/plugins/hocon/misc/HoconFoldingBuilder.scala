@@ -15,7 +15,7 @@ class HoconFoldingBuilder extends FoldingBuilder {
   import org.jetbrains.plugins.hocon.parser.HoconElementType.*
 
   def buildFoldRegions(node: ASTNode, document: Document): Array[FoldingDescriptor] = {
-    val foldableTypes = TokenSet.create(Object, Array, MultilineString)
+    val foldableTypes = TokenSet.create(Object, Array, MultilineString, LiteralBlockScalar, FoldedBlockScalar)
 
     val buffer = ArrayBuffer[FoldingDescriptor]()
     val iterator = depthFirst(node)
@@ -35,6 +35,8 @@ class HoconFoldingBuilder extends FoldingBuilder {
     case Object => "{...}"
     case Array => "[...]"
     case MultilineString => "\"\"\"...\"\"\""
+    case LiteralBlockScalar => "|..."
+    case FoldedBlockScalar => ">..."
   }
 
   private def depthFirst(root: ASTNode): Iterator[ASTNode] = new DepthFirstIterator(root)

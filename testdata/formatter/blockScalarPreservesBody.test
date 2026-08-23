@@ -1,0 +1,19 @@
+<settings/>
+-----
+description   :   |
+    line one
+      line two
+obj {
+description2   :   |
+    nested one
+      nested two
+}
+-----
+description: |
+    line one
+      line two
+obj {
+  description2: |
+    nested one
+      nested two
+}

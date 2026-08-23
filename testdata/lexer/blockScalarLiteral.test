@@ -1,0 +1,10 @@
+key: |
+  a
+  b
+-----
+UNQUOTED_CHARS {key}
+COLON {:}
+INLINE_WHITESPACE { }
+LITERAL_BLOCK_SCALAR {|
+  a
+  b}

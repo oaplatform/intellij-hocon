@@ -31,4 +31,6 @@ object HoconTokenType extends TokenType {
   final val UnquotedChars = new HoconTokenType("UNQUOTED_CHARS")
   final val QuotedString = new HoconTokenType("QUOTED_STRING")
   final val MultilineString = new HoconTokenType("MULTILINE_STRING")
+  final val LiteralBlockScalar = new HoconTokenType("LITERAL_BLOCK_SCALAR")
+  final val FoldedBlockScalar = new HoconTokenType("FOLDED_BLOCK_SCALAR")
 }

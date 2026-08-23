@@ -1,5 +1,5 @@
 <settings>
-  <codeStyleSettings language="HOCON">
+  <codeStyleSettings language="OAP-HOCON">
     <option name="SPACE_WITHIN_BRACES" value="false" />
   </codeStyleSettings>
 </settings>

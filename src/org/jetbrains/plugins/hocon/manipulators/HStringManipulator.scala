@@ -22,6 +22,7 @@ class HStringManipulator extends AbstractElementManipulator[HString] {
 
     val escapedContent = strType match {
       case MultilineString => newContent
+      case LiteralBlockScalar | FoldedBlockScalar => newContent
       case _ => StringUtil.escapeStringCharacters(newContent)
     }
 
@@ -51,6 +52,10 @@ class HStringManipulator extends AbstractElementManipulator[HString] {
       new TextRange(1, element.getTextLength - (if (element.isClosed) 1 else 0))
     case MultilineString =>
       new TextRange(3, element.getTextLength - (if (element.isClosed) 3 else 0))
+    case LiteralBlockScalar | FoldedBlockScalar =>
+      val headerLineEnd = element.getText.indexOf('\n')
+      val start = if (headerLineEnd < 0) element.getTextLength else headerLineEnd + 1
+      new TextRange(start, element.getTextLength)
     case _ =>
       super.getRangeInElement(element)
   }

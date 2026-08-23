@@ -13,6 +13,8 @@ object HoconHighlighterColors {
   final val Number = key("HOCON_NUMBER", DLHC.NUMBER)
   final val QuotedString = key("HOCON_QUOTED_STRING", DLHC.STRING)
   final val MultilineString = key("HOCON_MULTILINE_STRING", DLHC.STRING)
+  final val LiteralBlockScalar = key("HOCON_LITERAL_BLOCK_SCALAR", HighlighterColors.TEXT)
+  final val FoldedBlockScalar = key("HOCON_FOLDED_BLOCK_SCALAR", HighlighterColors.TEXT)
   final val ValidStringEscape = key("HOCON_VALID_STRING_ESCAPE", DLHC.VALID_STRING_ESCAPE)
   final val InvalidStringEscape = key("HOCON_INVALID_STRING_ESCAPE", DLHC.INVALID_STRING_ESCAPE)
   final val Brackets = key("HOCON_BRACKETS", DLHC.BRACKETS)

@@ -1,8 +1,8 @@
 <idea-plugin>
     <id>org.jetbrains.plugins.hocon</id>
-    <name>HOCON</name>
-    <description>OAP HOCON plugin for IntelliJ IDEA</description>
-    <version>2026.2.1-OAP</version>
+    <name>OAP-HOCON</name>
+    <description>OAP-HOCON plugin for IntelliJ IDEA</description>
+    <version>2026.2.3-OAP</version>
     <vendor>Igor Petrenko, Roman Janusz, AVSystem, JetBrains</vendor>
     <idea-version since-build="253.0" until-build="270.0"/>
     <depends>com.intellij.modules.platform</depends>
@@ -20,6 +20,10 @@
         <ul>
         <li>Block objects (YAML-style)</li>
         </ul>
+        2026.2.3:
+        <ul>
+        <li>Block scalars (YAML-style)</li>
+        </ul>
         ]]>
     </change-notes>
 
@@ -29,20 +33,20 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <fileType implementationClass="org.jetbrains.plugins.hocon.lang.HoconFileType"
-                  name="HOCON" language="HOCON" extensions="conf"/>
-        <lang.syntaxHighlighterFactory language="HOCON"
+                  name="OAP-HOCON" language="OAP-HOCON" extensions="conf"/>
+        <lang.syntaxHighlighterFactory language="OAP-HOCON"
                                        implementationClass="org.jetbrains.plugins.hocon.highlight.HoconSyntaxHighlighterFactory"/>
-        <lang.parserDefinition language="HOCON"
+        <lang.parserDefinition language="OAP-HOCON"
                                implementationClass="org.jetbrains.plugins.hocon.parser.HoconParserDefinition"/>
-        <lang.braceMatcher language="HOCON" implementationClass="org.jetbrains.plugins.hocon.misc.HoconBraceMatcher"/>
-        <lang.foldingBuilder language="HOCON"
+        <lang.braceMatcher language="OAP-HOCON" implementationClass="org.jetbrains.plugins.hocon.misc.HoconBraceMatcher"/>
+        <lang.foldingBuilder language="OAP-HOCON"
                              implementationClass="org.jetbrains.plugins.hocon.misc.HoconFoldingBuilder"/>
-        <lang.psiStructureViewFactory language="HOCON"
+        <lang.psiStructureViewFactory language="OAP-HOCON"
                                       implementationClass="org.jetbrains.plugins.hocon.misc.HoconStructureViewFactory"/>
-        <quoteHandler fileType="HOCON" className="org.jetbrains.plugins.hocon.editor.HoconQuoteHandler"/>
-        <annotator language="HOCON"
+        <quoteHandler fileType="OAP-HOCON" className="org.jetbrains.plugins.hocon.editor.HoconQuoteHandler"/>
+        <annotator language="OAP-HOCON"
                    implementationClass="org.jetbrains.plugins.hocon.highlight.HoconSyntaxHighlightingAnnotator"/>
-        <annotator language="HOCON"
+        <annotator language="OAP-HOCON"
                    implementationClass="org.jetbrains.plugins.hocon.parser.HoconErrorHighlightingAnnotator"/>
 
         <additionalTextAttributes scheme="Default" file="colorSchemes/HoconDefault.xml"/>
@@ -52,15 +56,15 @@
                 implementation="org.jetbrains.plugins.hocon.codestyle.HoconCodeStyleSettingsProvider"/>
         <langCodeStyleSettingsProvider
                 implementation="org.jetbrains.plugins.hocon.codestyle.HoconLanguageCodeStyleSettingsProvider"/>
-        <lang.formatter language="HOCON"
+        <lang.formatter language="OAP-HOCON"
                         implementationClass="org.jetbrains.plugins.hocon.formatting.HoconFormattingModelBuilder"/>
-        <lang.commenter language="HOCON" implementationClass="org.jetbrains.plugins.hocon.editor.HoconCommenter"/>
+        <lang.commenter language="OAP-HOCON" implementationClass="org.jetbrains.plugins.hocon.editor.HoconCommenter"/>
         <lang.elementManipulator forClass="org.jetbrains.plugins.hocon.psi.HString"
                                  implementationClass="org.jetbrains.plugins.hocon.manipulators.HStringManipulator"/>
         <lang.elementManipulator forClass="org.jetbrains.plugins.hocon.psi.HKey"
                                  implementationClass="org.jetbrains.plugins.hocon.manipulators.HKeyManipulator"/>
         <psi.referenceContributor implementation="org.jetbrains.plugins.hocon.ref.HoconReferenceContributor"
-                                  language="HOCON"/>
+                                  language="OAP-HOCON"/>
         <qualifiedNameProvider implementation="org.jetbrains.plugins.hocon.ref.HoconQualifiedNameProvider"/>
 
         <projectService serviceImplementation="org.jetbrains.plugins.hocon.settings.HoconProjectSettings"/>
@@ -68,19 +72,19 @@
                              instance="org.jetbrains.plugins.hocon.settings.HoconProjectSettingsConfigurable"
                              displayName="OAP-HOCON"/>
 
-        <localInspection language="HOCON"
+        <localInspection language="OAP-HOCON"
                          implementationClass="org.jetbrains.plugins.hocon.ref.HoconIncludeResolutionInspection"
-                         displayName="Include resolution" groupName="HOCON" enabledByDefault="true"
+                         displayName="Include resolution" groupName="OAP-HOCON" enabledByDefault="true"
                          level="WARNING"/>
-        <localInspection language="HOCON"
+        <localInspection language="OAP-HOCON"
                          implementationClass="org.jetbrains.plugins.hocon.ref.HoconRequiredIncludeResolutionInspection"
-                         displayName="Required include resolution" groupName="HOCON" enabledByDefault="true"
+                         displayName="Required include resolution" groupName="OAP-HOCON" enabledByDefault="true"
                          level="ERROR"/>
 
         <breadcrumbsInfoProvider implementation="org.jetbrains.plugins.hocon.misc.HoconBreadcrumbsInfoProvider"/>
 
         <enterHandlerDelegate implementation="org.jetbrains.plugins.hocon.editor.EnterInHashCommentHandler"/>
-        <enterBetweenBracesDelegate language="HOCON"
+        <enterBetweenBracesDelegate language="OAP-HOCON"
                                      implementationClass="org.jetbrains.plugins.hocon.editor.HoconEnterBetweenBracesHandler"/>
         <joinLinesHandler implementation="org.jetbrains.plugins.hocon.editor.HoconCommentJoinLinesHandler"/>
         <statementUpDownMover implementation="org.jetbrains.plugins.hocon.editor.HoconObjectEntryMover"/>
@@ -89,7 +93,7 @@
         <documentationProvider implementation="org.jetbrains.plugins.hocon.misc.HoconDocumentationProvider"/>
         <fileBasedIndex implementation="org.jetbrains.plugins.hocon.indexing.HoconKeyIndex"/>
         <fileBasedIndex implementation="org.jetbrains.plugins.hocon.indexing.HoconPathIndex"/>
-        <lang.findUsagesProvider language="HOCON"
+        <lang.findUsagesProvider language="OAP-HOCON"
                                  implementationClass="org.jetbrains.plugins.hocon.navigation.HoconFindUsagesProvider"/>
         <findUsagesHandlerFactory
                 implementation="org.jetbrains.plugins.hocon.navigation.HoconFindUsagesHandlerFactory"/>
@@ -103,12 +107,12 @@
 
     <actions>
         <action class="org.jetbrains.plugins.hocon.navigation.HoconGotoNextAction" id="HoconGotoNext"
-                text="HOCON: Go to Next Definition"
+                text="OAP-HOCON: Go to Next Definition"
                 description="Navigates to the next definition of a property in a OAP-HOCON file"
                 use-shortcut-of="GotoImplementation"/>
         <action class="org.jetbrains.plugins.hocon.navigation.HoconGotoPrevAction" id="HoconGotoPrev"
-                text="HOCON: Go to Previous Definition"
-                description="Navigates to the previous definition of a property in a HOCON file"
+                text="OAP-HOCON: Go to Previous Definition"
+                description="Navigates to the previous definition of a property in a OAP-HOCON file"
                 use-shortcut-of="GotoSuperMethod"/>
     </actions>
 </idea-plugin>

@@ -126,4 +126,33 @@ extensions are modeled after and meant to stay compatible with.
 
   Both extensions trigger only when nothing else follows the `:`/`=` on the same line, and nest arbitrarily
   (a block array's item may itself have a block-object or block-array field, and vice versa).
+
+* **Block scalars** - a `|` (literal) or `>` (folded) header line, followed by an indented block of raw text,
+  usable anywhere a value is expected (field values, array elements, block-array items):
+
+  ```hocon
+  description: |
+    line one
+    line two
+
+  summary: >
+    folded
+    onto one line
+
+  raw: |-
+    no trailing newline
+
+  arr: [|
+    also works as an array element
+  ]
+  ```
+
+  * The header must be alone on its line (only trailing whitespace/comment allowed), optionally suffixed with
+    a chomping indicator: no suffix clips to exactly one trailing newline, `-` strips it entirely, `+` keeps
+    all trailing blank lines.
+  * Indentation is auto-detected from the first non-blank body line; the block ends at the first line
+    indented less than that (or at EOF). More-indented lines keep their extra leading spaces literally.
+  * The body is raw text, not re-parsed as HOCON - `#`, quotes, `$`, `{`/`}` etc. inside it are literal
+    characters, not syntax.
+  * `|` preserves line breaks as-is; `>` folds them into spaces (a blank line becomes one preserved break).
   

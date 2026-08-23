@@ -793,6 +793,10 @@ sealed trait HString extends HoconPsiElement with PsiLiteralValue with Contribut
       getText.substring(1, getText.length - (if (isClosed) 1 else 0))
     case HoconTokenType.MultilineString =>
       getText.substring(3, getText.length - (if (isClosed) 3 else 0))
+    case HoconTokenType.LiteralBlockScalar | HoconTokenType.FoldedBlockScalar =>
+      val text = getText
+      val headerLineEnd = text.indexOf('\n')
+      if (headerLineEnd < 0) "" else text.substring(headerLineEnd + 1)
     case HoconElementType.UnquotedString =>
       getText
   }
@@ -800,6 +804,10 @@ sealed trait HString extends HoconPsiElement with PsiLiteralValue with Contribut
   def stringValue: String = stringType match {
     case HoconTokenType.QuotedString =>
       StringUtil.unescapeStringCharacters(unquote)
+    case HoconTokenType.LiteralBlockScalar =>
+      HString.processBlockScalar(unquote, folded = false, HString.chompCharOf(getText))
+    case HoconTokenType.FoldedBlockScalar =>
+      HString.processBlockScalar(unquote, folded = true, HString.chompCharOf(getText))
     case _ =>
       unquote
   }
@@ -815,6 +823,71 @@ sealed trait HString extends HoconPsiElement with PsiLiteralValue with Contribut
 
   override def getReferences: Array[PsiReference] =
     PsiReferenceService.getService.getContributedReferences(this)
+}
+
+object HString {
+  // Header text is '|' or '>' optionally followed by a '-' (strip) / '+' (keep) chomping indicator.
+  private def chompCharOf(headerText: String): Option[Char] =
+    if (headerText.length > 1 && (headerText.charAt(1) == '-' || headerText.charAt(1) == '+'))
+      Some(headerText.charAt(1))
+    else
+      None
+
+  private def stripIndent(line: String, indent: Int): String = {
+    var i = 0
+    while (i < indent && i < line.length && (line.charAt(i) == ' ' || line.charAt(i) == '\t')) i += 1
+    line.substring(i)
+  }
+
+  private def stripTrailingNewlines(text: String): String = {
+    var end = text.length
+    while (end > 0 && text.charAt(end - 1) == '\n') end -= 1
+    text.substring(0, end)
+  }
+
+  private def applyChomp(text: String, chompChar: Option[Char]): String = chompChar match {
+    case Some('-') => stripTrailingNewlines(text)
+    case Some('+') => text
+    case _ =>
+      val trimmed = stripTrailingNewlines(text)
+      if (text.endsWith("\n")) trimmed + "\n" else trimmed
+  }
+
+  // rawBody is the un-dedented text following the header line (HString.unquote for a block scalar token).
+  // Indentation is auto-detected from the first non-blank line; that many leading spaces/tabs are stripped
+  // from every line (over-indented lines keep their extra literal leading whitespace). Folded style joins
+  // consecutive non-blank lines with a single space, preserving a literal break wherever a blank line is
+  // adjacent; literal style keeps every line break as-is. Chomping is then applied to the trailing newline(s).
+  private def processBlockScalar(rawBody: String, folded: Boolean, chompChar: Option[Char]): String =
+    if (rawBody.isEmpty) ""
+    else {
+      val endsWithNewline = rawBody.endsWith("\n")
+      val rawLines = rawBody.split("\n", -1).toVector
+      val contentLines = if (endsWithNewline) rawLines.init else rawLines
+      val baseIndent =
+        contentLines.find(_.exists(ch => ch != ' ' && ch != '\t')).map(_.takeWhile(ch => ch == ' ' || ch == '\t').length)
+
+      baseIndent match {
+        case None => ""
+        case Some(indent) =>
+          val strippedLines = contentLines.map(stripIndent(_, indent))
+          val joined =
+            if (!folded) strippedLines.mkString("\n")
+            else {
+              val sb = new StringBuilder
+              strippedLines.indices.foreach { idx =>
+                if (idx > 0) {
+                  val prevBlank = strippedLines(idx - 1).isEmpty
+                  val curBlank = strippedLines(idx).isEmpty
+                  sb.append(if (prevBlank || curBlank) '\n' else ' ')
+                }
+                sb.append(strippedLines(idx))
+              }
+              sb.toString
+            }
+          applyChomp(joined + (if (endsWithNewline) "\n" else ""), chompChar)
+      }
+    }
 }
 
 final class HStringValue(ast: ASTNode) extends HoconPsiElement(ast) with HString with HLiteralValue {

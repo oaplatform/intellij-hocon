@@ -23,6 +23,8 @@ object HoconSyntaxHighlighter extends SyntaxHighlighter {
     BadCharacter -> Array(HHC.BadCharacter),
     QuotedString -> Array(HHC.QuotedString),
     MultilineString -> Array(HHC.MultilineString),
+    LiteralBlockScalar -> Array(HHC.LiteralBlockScalar),
+    FoldedBlockScalar -> Array(HHC.FoldedBlockScalar),
     HashComment -> Array(HHC.HashComment),
     DoubleSlashComment -> Array(HHC.DoubleSlashComment),
     LBrace -> Array(HHC.Braces),
