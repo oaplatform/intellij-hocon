@@ -156,6 +156,9 @@ class HoconFormatter(settings: CodeStyleSettings) {
       case (LParen, QualifiedIncluded | IncludeTarget) | (QualifiedIncluded | IncludeTarget, RParen) =>
         normalSpacing(commonSettings.SPACE_WITHIN_METHOD_CALL_PARENTHESES)
 
+      case (LParen, ClasspathTarget) | (ClasspathTarget, RParen) =>
+        normalSpacing(commonSettings.SPACE_WITHIN_METHOD_CALL_PARENTHESES)
+
       case _ =>
         null
 

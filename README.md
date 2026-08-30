@@ -155,4 +155,18 @@ extensions are modeled after and meant to stay compatible with.
   * The body is raw text, not re-parsed as HOCON - `#`, quotes, `$`, `{`/`}` etc. inside it are literal
     characters, not syntax.
   * `|` preserves line breaks as-is; `>` folds them into spaces (a blank line becomes one preserved break).
+
+* **`classpath(...)` value construct** - usable anywhere a HOCON value is expected (field value, array
+  element, block-array item, etc.), resolving an unquoted path against the containing module's classpath as
+  an exact resource name - like `ClassLoader.getResource(...)` at runtime. Unlike `include classpath("...")`,
+  it does *not* guess a `.conf`/`.json`/`.properties` extension when one is missing:
+
+  ```hocon
+  a:
+    b: classpath(/oap/files/my.resource)
+  ```
+
+  Supports navigation (`Ctrl`+click / go-to-declaration) to the resolved resource, is flagged by an
+  inspection when the resource cannot be found on the classpath, and stays in sync automatically when the
+  target resource is renamed or moved in the IDE. The path is unquoted only (no `classpath("...")` form).
   

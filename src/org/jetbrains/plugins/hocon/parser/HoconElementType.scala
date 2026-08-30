@@ -150,6 +150,18 @@ object HoconElementType {
     */
   val IncludeTarget = new HoconElementType("INCLUDE_TARGET")
 
+  /** `classpath(...)` value-position construct: `classpath` keyword + parens + target path.
+    *
+    * {{{
+    *   a: classpath(/oap/files/my.resource)
+    * }}}
+    */
+  val ClasspathReference = new HoconElementType("CLASSPATH_REFERENCE")
+
+  /** The unquoted resource path inside a [[ClasspathReference]] value construct.
+    */
+  val ClasspathTarget = new HoconElementType("CLASSPATH_TARGET")
+
   /** Encapsulates either an unquoted, quoted or multiline string - in key context.
     */
   val KeyPart = new HoconElementType("KEY_PART")

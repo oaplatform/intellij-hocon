@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.hocon
 package highlight
 
-import com.intellij.openapi.editor.colors.TextAttributesKey
+import com.intellij.openapi.editor.colors.{CodeInsightColors, TextAttributesKey}
 import com.intellij.openapi.editor.{DefaultLanguageHighlighterColors => DLHC, HighlighterColors}
 
 object HoconHighlighterColors {
@@ -25,6 +25,11 @@ object HoconHighlighterColors {
   final val Comma = key("HOCON_COMMA", DLHC.COMMA)
   final val Include = key("HOCON_INCLUDE", DLHC.KEYWORD)
   final val IncludeModifier = key("HOCON_INCLUDE_MODIFIER", DLHC.IDENTIFIER)
+  final val Classpath = key("HOCON_CLASSPATH", DLHC.KEYWORD)
+  final val ClasspathParens = key("HOCON_CLASSPATH_PARENS", DLHC.PARENTHESES)
+  final val ClasspathResource = key("HOCON_CLASSPATH_RESOURCE", CodeInsightColors.HYPERLINK_ATTRIBUTES)
+  final val ClasspathResourceUnresolved =
+    key("HOCON_CLASSPATH_RESOURCE_UNRESOLVED", CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES)
   final val SubstitutionSign = key("HOCON_SUBSTITUTION_SIGN", DLHC.OPERATION_SIGN)
   final val OptionalSubstitutionSign = key("HOCON_OPTIONAL_SUBSTITUTION_SIGN", DLHC.OPERATION_SIGN)
   final val UnquotedString = key("HOCON_UNQUOTED_STRING", DLHC.IDENTIFIER)

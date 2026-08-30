@@ -4,6 +4,7 @@ package highlight
 import com.intellij.lang.annotation.{AnnotationHolder, Annotator, HighlightSeverity}
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.hocon.psi.HClasspathTarget
 
 class HoconSyntaxHighlightingAnnotator extends Annotator {
 
@@ -13,6 +14,7 @@ class HoconSyntaxHighlightingAnnotator extends Annotator {
 
   def annotate(element: PsiElement, holder: AnnotationHolder): Unit = {
     lazy val parentType = element.getParent.getNode.getElementType
+    lazy val grandParentType = element.getParent.getParent.getNode.getElementType
     lazy val firstChildType = element.getFirstChild.getNode.getElementType
 
     def annot(attrs: TextAttributesKey): Unit =
@@ -36,6 +38,19 @@ class HoconSyntaxHighlightingAnnotator extends Annotator {
 
       case LParen | RParen if parentType == Included || parentType == QualifiedIncluded =>
         annot(HoconHighlighterColors.IncludeModifierParens)
+
+      case UnquotedChars if parentType == ClasspathReference =>
+        annot(HoconHighlighterColors.Classpath)
+
+      case LParen | RParen if parentType == ClasspathReference =>
+        annot(HoconHighlighterColors.ClasspathParens)
+
+      case UnquotedChars | Period if parentType == UnquotedString && grandParentType == ClasspathTarget =>
+        val target = element.getParent.getParent.asInstanceOf[HClasspathTarget]
+        val resolved = target.getFileReferences.lastOption.exists(_.multiResolve(false).nonEmpty)
+        annot(
+          if (resolved) HoconHighlighterColors.ClasspathResource else HoconHighlighterColors.ClasspathResourceUnresolved
+        )
 
       case KeyPart if firstChildType == UnquotedString =>
         val textAttributesKey = element.getParent.getParent.getNode.getElementType match {

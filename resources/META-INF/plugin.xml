@@ -2,7 +2,7 @@
     <id>org.jetbrains.plugins.hocon</id>
     <name>OAP-HOCON</name>
     <description>OAP-HOCON plugin for IntelliJ IDEA</description>
-    <version>2026.2.3-OAP</version>
+    <version>2026.2.4-OAP</version>
     <vendor>Igor Petrenko, Roman Janusz, AVSystem, JetBrains</vendor>
     <idea-version since-build="253.0" until-build="270.0"/>
     <depends>com.intellij.modules.platform</depends>
@@ -23,6 +23,10 @@
         2026.2.3:
         <ul>
         <li>Block scalars (YAML-style)</li>
+        </ul>
+        2026.2.4:
+        <ul>
+        <li>classpath(...) value construct</li>
         </ul>
         ]]>
     </change-notes>
@@ -80,6 +84,10 @@
                          implementationClass="org.jetbrains.plugins.hocon.ref.HoconRequiredIncludeResolutionInspection"
                          displayName="Required include resolution" groupName="OAP-HOCON" enabledByDefault="true"
                          level="ERROR"/>
+        <localInspection language="OAP-HOCON"
+                         implementationClass="org.jetbrains.plugins.hocon.ref.HoconClasspathResolutionInspection"
+                         displayName="Classpath reference resolution" groupName="OAP-HOCON" enabledByDefault="true"
+                         level="WARNING"/>
 
         <breadcrumbsInfoProvider implementation="org.jetbrains.plugins.hocon.misc.HoconBreadcrumbsInfoProvider"/>
 
