@@ -193,7 +193,8 @@ sealed trait HObjectEntry extends HoconPsiElement with HEntriesLike {
   def firstOccurrence(key: Option[String], opts: ResOpts, resCtx: ResolutionCtx): Option[ResolvedField]
 }
 
-final class HObjectField(ast: ASTNode) extends HoconPsiElement(ast) with HObjectEntry with HKeyedFieldParent {
+final class HObjectField(ast: ASTNode)
+  extends HoconPsiElement(ast) with HObjectEntry with HEntriesLike with HKeyedFieldParent {
   def docComments: Iterator[PsiComment] = nonWhitespaceChildren
     .takeWhile(_.getNode.getElementType == HoconTokenType.HashComment)
     .map(ch => ch.asInstanceOf[PsiComment])

@@ -4,7 +4,7 @@ package lexer
 import com.intellij.lexer.LexerBase
 import com.intellij.psi.tree.IElementType
 
-import scala.annotation.{switch, tailrec}
+import scala.annotation.tailrec
 
 object HoconLexer {
 
@@ -86,7 +86,7 @@ class HoconLexer extends LexerBase {
 
     tokenStart = tokenEnd
     if (endOffset > tokenStart) {
-      (input.charAt(tokenStart): @switch) match {
+      input.charAt(tokenStart) match {
         case '$' => setNewToken(Dollar, 1, onDollar(stateAfter))
         case '?' if stateAfter == SubStarted => setNewToken(QMark, 1, Substitution)
         case '{' =>
