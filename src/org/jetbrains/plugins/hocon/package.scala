@@ -24,7 +24,7 @@ package object hocon extends AsJavaExtensions with AsScalaExtensions {
   type JMap[K, V] = java.util.Map[K, V]
 
   final val HoconIcon = AllIcons.FileTypes.Config
-  final val PropertyIcon = IconManager.getInstance.getIcon("/icons/property.svg", getClass.getClassLoader)
+  final val PropertyIcon = IconManager.getInstance.getIcon("/icons/property.svg", this.getClass.getClassLoader)
 
   def notWhiteSpaceSibling(element: PsiElement)(sibling: PsiElement => PsiElement): PsiElement = {
     var result = sibling(element)

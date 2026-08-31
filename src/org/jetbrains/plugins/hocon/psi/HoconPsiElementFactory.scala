@@ -26,6 +26,9 @@ object HoconPsiElementFactory {
   def createIncludeTarget(contents: String, manager: PsiManager): HIncludeTarget =
     createElement[HIncludeTarget](manager, s"include $contents", 8).orNull
 
+  def createClasspathTarget(contents: String, manager: PsiManager): HClasspathTarget =
+    createElement[HClasspathTarget](manager, s"__k = classpath($contents)", 16).orNull
+
   def createFieldKey(contents: String, manager: PsiManager): HFieldKey =
     createElement[HFieldKey](manager, s"$contents = null", 0).orNull
 

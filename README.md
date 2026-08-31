@@ -1,6 +1,15 @@
-# IntelliJ IDEA Plugin for [HOCON](https://github.com/lightbend/config/blob/master/HOCON.md)
+# IntelliJ IDEA Plugin for [HOCON](https://github.com/oaplatform/intellij-hocon/blob/master/README.md)
 
 [Plugin page](https://plugins.jetbrains.com/plugin/10481-hocon)
+
+## Contents
+
+* [Features and usage instructions](#features-and-usage-instructions)
+* [OAP extensions (non-standard)](#oap-extensions-non-standard)
+  * [Block arrays](#block-arrays)
+  * [Block objects](#block-objects)
+  * [Block scalars](#block-scalars)
+  * [`classpath(...)` value construct](#classpath-value-construct)
 
 ## Features and usage instructions
 
@@ -100,7 +109,7 @@ and isn't understood by `ConfigFactory.load` or any other standard HOCON parser 
 for use with [oap-config](https://github.com/oaplatform/config), the Java OAP HOCON implementation these
 extensions are modeled after and meant to stay compatible with.
 
-* **Block arrays** - a `-`-prefixed list item per line, instead of `[...]`:
+* <a id="block-arrays"></a>**Block arrays** - a `-`-prefixed list item per line, instead of `[...]`:
 
   ```hocon
   my_array:
@@ -115,7 +124,7 @@ extensions are modeled after and meant to stay compatible with.
   Multiple key/value lines indented to the same column as an item's first field become an implicit object for
   that item (`field1.a = fg` and `field2 = 3` above form one object).
 
-* **Block objects** - a bracket-less object value, with fields only distinguished by indentation:
+* <a id="block-objects"></a>**Block objects** - a bracket-less object value, with fields only distinguished by indentation:
 
   ```hocon
   a:
@@ -127,7 +136,7 @@ extensions are modeled after and meant to stay compatible with.
   Both extensions trigger only when nothing else follows the `:`/`=` on the same line, and nest arbitrarily
   (a block array's item may itself have a block-object or block-array field, and vice versa).
 
-* **Block scalars** - a `|` (literal) or `>` (folded) header line, followed by an indented block of raw text,
+* <a id="block-scalars"></a>**Block scalars** - a `|` (literal) or `>` (folded) header line, followed by an indented block of raw text,
   usable anywhere a value is expected (field values, array elements, block-array items):
 
   ```hocon
@@ -155,4 +164,18 @@ extensions are modeled after and meant to stay compatible with.
   * The body is raw text, not re-parsed as HOCON - `#`, quotes, `$`, `{`/`}` etc. inside it are literal
     characters, not syntax.
   * `|` preserves line breaks as-is; `>` folds them into spaces (a blank line becomes one preserved break).
+
+* <a id="classpath-value-construct"></a>**`classpath(...)` value construct** - usable anywhere a HOCON value is expected (field value, array
+  element, block-array item, etc.), resolving an unquoted path against the containing module's classpath as
+  an exact resource name - like `ClassLoader.getResource(...)` at runtime. Unlike `include classpath("...")`,
+  it does *not* guess a `.conf`/`.json`/`.properties` extension when one is missing:
+
+  ```hocon
+  a:
+    b: classpath(/oap/files/my.resource)
+  ```
+
+  Supports navigation (`Ctrl`+click / go-to-declaration) to the resolved resource, is flagged by an
+  inspection when the resource cannot be found on the classpath, and stays in sync automatically when the
+  target resource is renamed or moved in the IDE. The path is unquoted only (no `classpath("...")` form).
   

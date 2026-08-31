@@ -26,7 +26,7 @@ class HStringManipulator extends AbstractElementManipulator[HString] {
       case _ => StringUtil.escapeStringCharacters(newContent)
     }
 
-    val needsQuoting = strType == UnquotedString &&
+    val needsQuoting = strType == UnquotedString && str.elementType != ClasspathTarget &&
       (newContent.isEmpty || newContent.startsWith(" ") || newContent.endsWith(" ") ||
         (str.elementType == KeyPart && newContent.contains('.')) ||
         newContent.exists(HoconLexer.ForbiddenChars.contains(_)) || escapedContent != newContent)
@@ -39,6 +39,7 @@ class HStringManipulator extends AbstractElementManipulator[HString] {
       case StringValue => HoconPsiElementFactory.createStringValue(quotedText, str.getManager)
       case KeyPart => HoconPsiElementFactory.createKeyPart(quotedText, str.getManager)
       case IncludeTarget => HoconPsiElementFactory.createIncludeTarget(quotedText, str.getManager)
+      case ClasspathTarget => HoconPsiElementFactory.createClasspathTarget(quotedText, str.getManager)
     }
     str.getFirstChild.replace(newString.getFirstChild)
 

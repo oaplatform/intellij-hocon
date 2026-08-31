@@ -379,6 +379,24 @@ class HoconPsiParser extends PsiParser {
 
       def tryParseNumber = tryParse(passNumber() && matches(endingMatcher), Number)
 
+      def tryParseClasspathReference = matchesUnquoted(HoconConstants.ClasspathModifier) && tryParse(
+        {
+          advanceLexer() // consume 'classpath'
+          matches(LParen) && !Whitespace.contains(builder.rawLookup(-1)) && {
+            advanceLexer()
+            if (!matches(ClasspathPathChars.noNewLine)) {
+              builder.error("expected classpath resource path")
+            } else {
+              parseUnquotedString(ClasspathTarget, ClasspathPathChars.noNewLine, nonGreedyLeft = true, RParen)
+            }
+            if (matches(RParen)) advanceLexer()
+            else errorUntil(ValueEnding.orNewLineOrEof, "expected ')'")
+            true
+          }
+        },
+        ClasspathReference,
+      )
+
       @tailrec
       def parseValueParts(partCount: Int): Int =
         if (!matches(endingMatcher)) {
@@ -388,6 +406,8 @@ class HoconPsiParser extends PsiParser {
             parseArray()
           } else if (matches(Dollar) && builder.lookAhead(1) == SubLBrace) {
             parseSubstitution()
+          } else if (tryParseClasspathReference) {
+            // consumed
           } else if (matches(ValueUnquotedChars)) {
             parseUnquotedString(StringValue, ValueUnquotedChars.noNewLine, partCount == 0, ValueEnding.orNewLineOrEof)
           } else if (matches(StringLiteral)) {

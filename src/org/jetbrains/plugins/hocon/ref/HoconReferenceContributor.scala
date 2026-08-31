@@ -3,7 +3,7 @@ package ref
 
 import com.intellij.patterns.{PlatformPatterns, PsiElementPattern}
 import com.intellij.psi.{PsiElement, PsiReferenceContributor, PsiReferenceRegistrar}
-import org.jetbrains.plugins.hocon.psi.{HIncludeTarget, HStringValue}
+import org.jetbrains.plugins.hocon.psi.{HClasspathTarget, HIncludeTarget, HStringValue}
 
 import scala.reflect.{classTag, ClassTag}
 
@@ -13,6 +13,7 @@ class HoconReferenceContributor extends PsiReferenceContributor {
 
   def registerReferenceProviders(registrar: PsiReferenceRegistrar): Unit = {
     registrar.registerReferenceProvider(pattern[HIncludeTarget], new IncludedFileReferenceProvider)
+    registrar.registerReferenceProvider(pattern[HClasspathTarget], new ClasspathFileReferenceProvider)
     registrar.registerReferenceProvider(pattern[HStringValue], new HoconPropertiesReferenceProvider)
   }
 }

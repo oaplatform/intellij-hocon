@@ -69,6 +69,8 @@ object HoconParserDefinition {
     case StringValue => new HStringValue(ast)
     case KeyPart => new HKeyPart(ast)
     case IncludeTarget => new HIncludeTarget(ast)
+    case ClasspathReference => new HClasspathReference(ast)
+    case ClasspathTarget => new HClasspathTarget(ast)
     case Number => new HNumber(ast)
     case Null => new HNull(ast)
     case Boolean => new HBoolean(ast)

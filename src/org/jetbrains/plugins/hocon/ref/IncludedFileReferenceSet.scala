@@ -67,7 +67,9 @@ class IncludedFileReferenceSet(
   forcedAbsolute: Boolean,
   fromClasspath: Boolean,
   scope: GlobalSearchScope,
-) extends FileReferenceSet(text, element, 1, null, true) {
+  startInElement: Int = 1,
+  guessConfigExtension: Boolean = true,
+) extends FileReferenceSet(text, element, startInElement, null, true) {
 
   setEmptyPathAllowed(false)
 
@@ -79,12 +81,15 @@ class IncludedFileReferenceSet(
     else fromClasspath
 
   override def createFileReference(range: TextRange, index: Int, text: String): FileReference =
-    new IncludedFileReference(this, range, index, text)
+    new IncludedFileReference(this, range, index, text, guessConfigExtension)
 
   override def getReferenceCompletionFilter: Condition[PsiFileSystemItem] =
-    (item: PsiFileSystemItem) =>
-      item.isDirectory || item.getName.endsWith(ConfExt) || item.getName.endsWith(JsonExt) ||
-        item.getName.endsWith(PropsExt)
+    if (guessConfigExtension)
+      (item: PsiFileSystemItem) =>
+        item.isDirectory || item.getName.endsWith(ConfExt) || item.getName.endsWith(JsonExt) ||
+          item.getName.endsWith(PropsExt)
+    else
+      (_: PsiFileSystemItem) => true
 
   // code mostly based on similar bits in `FileReferenceSet` and `PsiFileReferenceHelper`
   override def computeDefaultContexts: JCollection[PsiFileSystemItem] = {
@@ -135,12 +140,17 @@ object IncludedFileReference {
   }
 }
 
-class IncludedFileReference(refSet: FileReferenceSet, range: TextRange, index: Int, text: String)
-  extends FileReference(refSet, range, index, text) {
+class IncludedFileReference(
+  refSet: FileReferenceSet,
+  range: TextRange,
+  index: Int,
+  text: String,
+  guessConfigExtension: Boolean = true,
+) extends FileReference(refSet, range, index, text) {
 
   private def lacksExtension(text: String) =
-    isLast && text.nonEmpty && text != "." && text != ".." && text != "/" && !text.endsWith(ConfExt) &&
-      !text.endsWith(JsonExt) && !text.endsWith(PropsExt)
+    guessConfigExtension && isLast && text.nonEmpty && text != "." && text != ".." && text != "/" &&
+      !text.endsWith(ConfExt) && !text.endsWith(JsonExt) && !text.endsWith(PropsExt)
 
   override def innerResolve(caseSensitive: Boolean, containingFile: PsiFile): Array[ResolveResult] = {
     val result = super.innerResolve(caseSensitive, containingFile)

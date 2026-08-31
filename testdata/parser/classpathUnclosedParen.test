@@ -1,0 +1,20 @@
+a: classpath(/x
+-----
+HOCON_FILE
+  HObjectEntries(OBJECT_ENTRIES)
+    HObjectField(OBJECT_FIELD)
+      HValuedField(VALUED_FIELD)
+        HFieldKey(FIELD_KEY)
+          HKeyPart(KEY_PART)
+            HUnquotedString(UNQUOTED_STRING)
+              PsiElement(UNQUOTED_CHARS)('a')
+        PsiElement(COLON)(':')
+        PsiWhiteSpace(' ')
+        HClasspathReference(CLASSPATH_REFERENCE)
+          PsiElement(UNQUOTED_CHARS)('classpath')
+          PsiElement(LPAREN)('(')
+          HClasspathTarget(CLASSPATH_TARGET)
+            HUnquotedString(UNQUOTED_STRING)
+              PsiElement(UNQUOTED_CHARS)('/x')
+          PsiErrorElement:expected ')'
+            <empty list>

@@ -31,7 +31,9 @@ class HoconColorSettingsPage extends ColorSettingsPage {
        |    <substsign>$$</substsign><substbraces>{</substbraces><optsubstsign>?</optsubstsign><substkey>substitution</substkey><dot>.</dot><substkey>inner</substkey><substbraces>}</substbraces><comma>,</comma>
        |    <multilinestring>${"\"\"\""}multiline\n    multiline${"\"\"\""}</multilinestring><comma>,</comma>
        |    <litblockscalar>|\n    literal block\n    scalar</litblockscalar><comma>,</comma>
-       |    <foldblockscalar>>\n    folded block\n    scalar</foldblockscalar>
+       |    <foldblockscalar>>\n    folded block\n    scalar</foldblockscalar><comma>,</comma>
+       |    <classpath>classpath</classpath><clparens>(</clparens><clresource>/oap/files/my.resource</clresource><clparens>)</clparens><comma>,</comma>
+       |    <classpath>classpath</classpath><clparens>(</clparens><clresourceunresolved>/oap/files/missing.resource</clresourceunresolved><clparens>)</clparens>
        |  <brackets>]</brackets>
        |<braces>}</braces>
        |""".stripMargin.trim
@@ -57,6 +59,10 @@ class HoconColorSettingsPage extends ColorSettingsPage {
     "comma" -> HHC.Comma,
     "include" -> HHC.Include,
     "inclmod" -> HHC.IncludeModifier,
+    "classpath" -> HHC.Classpath,
+    "clparens" -> HHC.ClasspathParens,
+    "clresource" -> HHC.ClasspathResource,
+    "clresourceunresolved" -> HHC.ClasspathResourceUnresolved,
     "substsign" -> HHC.SubstitutionSign,
     "optsubstsign" -> HHC.OptionalSubstitutionSign,
     "unquotedstring" -> HHC.UnquotedString,
@@ -100,6 +106,10 @@ object HoconColorSettingsPage {
     "Comma" -> HHC.Comma,
     "Include keyword" -> HHC.Include,
     "Include modifier" -> HHC.IncludeModifier,
+    "Classpath keyword" -> HHC.Classpath,
+    "Classpath parens" -> HHC.ClasspathParens,
+    "Classpath resource" -> HHC.ClasspathResource,
+    "Classpath resource (not found)" -> HHC.ClasspathResourceUnresolved,
     "Substitution sign" -> HHC.SubstitutionSign,
     "Optional substitution sign" -> HHC.OptionalSubstitutionSign,
     "Unquoted string" -> HHC.UnquotedString,

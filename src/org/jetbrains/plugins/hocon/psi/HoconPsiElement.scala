@@ -193,7 +193,8 @@ sealed trait HObjectEntry extends HoconPsiElement with HEntriesLike {
   def firstOccurrence(key: Option[String], opts: ResOpts, resCtx: ResolutionCtx): Option[ResolvedField]
 }
 
-final class HObjectField(ast: ASTNode) extends HoconPsiElement(ast) with HObjectEntry with HKeyedFieldParent {
+final class HObjectField(ast: ASTNode)
+  extends HoconPsiElement(ast) with HObjectEntry with HEntriesLike with HKeyedFieldParent {
   def docComments: Iterator[PsiComment] = nonWhitespaceChildren
     .takeWhile(_.getNode.getElementType == HoconTokenType.HashComment)
     .map(ch => ch.asInstanceOf[PsiComment])
@@ -909,6 +910,37 @@ final class HKeyPart(ast: ASTNode) extends HoconPsiElement(ast) with HString {
 
 final class HIncludeTarget(ast: ASTNode) extends HoconPsiElement(ast) with HString {
   type Parent = HQualifiedIncluded
+
+  def getFileReferences: Array[FileReference] =
+    parent
+      .fileReferenceSet(IncludedFileReferenceSet.classpathScope(hoconFile))
+      .map(_.getAllReferences)
+      .getOrElse(FileReference.EMPTY)
+}
+
+final class HClasspathReference(ast: ASTNode) extends HoconPsiElement(ast) with HLiteralValue {
+  def target: Option[HClasspathTarget] = findChild[HClasspathTarget]
+
+  def getValue: Object = target.map(_.stringValue).orNull
+
+  def configValue: ConfigValue = StringValue(target.fold("")(_.stringValue))
+
+  def fileReferenceSet(scope: GlobalSearchScope): Option[IncludedFileReferenceSet] =
+    target.map(t =>
+      new IncludedFileReferenceSet(
+        t.stringValue,
+        t,
+        true,
+        true,
+        scope,
+        startInElement = 0,
+        guessConfigExtension = false,
+      )
+    )
+}
+
+final class HClasspathTarget(ast: ASTNode) extends HoconPsiElement(ast) with HString {
+  type Parent = HClasspathReference
 
   def getFileReferences: Array[FileReference] =
     parent

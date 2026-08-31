@@ -1,9 +1,9 @@
 import org.jetbrains.sbtidea.Keys._
 
-ThisBuild / scalaVersion := "2.13.18"
+ThisBuild / scalaVersion := "3.3.8"
 ThisBuild / intellijPluginName := "oap-intellij-hocon"
-ThisBuild / intellijBuild := "261.25134.121"
-ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("21"))
+ThisBuild / intellijBuild := "261.25134.232"
+ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("24"))
 // Cache the IntelliJ SDK (~800MB) that the sbt-idea-plugin downloads on build load; the default
 // sbt cache doesn't cover it. Keyed on build.sbt so an intellijBuild bump invalidates the entry.
 ThisBuild / githubWorkflowBuildPreamble += WorkflowStep.Use(
@@ -34,17 +34,21 @@ lazy val hocon = project
   .in(file("."))
   .enablePlugins(SbtIdeaPlugin)
   .settings(
-    version := sys.env.getOrElse("PLUGIN_VERSION", "2026.2.3-OAP"),
+    version := sys.env.getOrElse("PLUGIN_VERSION", "2026.2.4-OAP"),
     Compile / scalaSource := baseDirectory.value / "src",
     Test / scalaSource := baseDirectory.value / "test",
     Compile / resourceDirectory := baseDirectory.value / "resources",
-    Global / javacOptions ++= Seq("--release", "21"),
+    // Matches HoconSingleModuleTest's rootPath, so classpath(...)/include resolution behaves the same
+    // when editing these fixtures directly in this IDE window as it does under the JUnit sandbox.
+    Test / unmanagedResourceDirectories += baseDirectory.value / "testdata" / "includes" / "singlemodule",
+    Global / javacOptions ++= Seq("--release", "24"),
     Global / scalacOptions ++= Seq(
+      "-release",
+      "24",
       "-deprecation",
       "-feature",
       "-unchecked",
       "-Xfatal-warnings",
-      "-Xsource:3",
     ),
     ideBasePackages := Seq("org.jetbrains.plugins.hocon"),
     intellijPlugins := Seq("com.intellij.java", "com.intellij.java-i18n", "com.intellij.modules.json").map(_.toPlugin),
