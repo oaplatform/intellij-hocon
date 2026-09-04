@@ -15,7 +15,8 @@ class HoconFoldingBuilder extends FoldingBuilder {
   import org.jetbrains.plugins.hocon.parser.HoconElementType.*
 
   def buildFoldRegions(node: ASTNode, document: Document): Array[FoldingDescriptor] = {
-    val foldableTypes = TokenSet.create(Object, Array, MultilineString, LiteralBlockScalar, FoldedBlockScalar)
+    val foldableTypes =
+      TokenSet.create(Object, Array, BlockObject, BlockArray, MultilineString, LiteralBlockScalar, FoldedBlockScalar)
 
     val buffer = ArrayBuffer[FoldingDescriptor]()
     val iterator = depthFirst(node)
@@ -34,6 +35,8 @@ class HoconFoldingBuilder extends FoldingBuilder {
   def getPlaceholderText(node: ASTNode): String = node.getElementType match {
     case Object => "{...}"
     case Array => "[...]"
+    case BlockObject => "{...}"
+    case BlockArray => "[...]"
     case MultilineString => "\"\"\"...\"\"\""
     case LiteralBlockScalar => "|..."
     case FoldedBlockScalar => ">..."
