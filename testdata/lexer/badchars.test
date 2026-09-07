@@ -1,9 +1,9 @@
 *^$&@+?`\
 -----
-BAD_CHARACTER {*}
+STAR {*}
 BAD_CHARACTER {^}
 DOLLAR {$}
-BAD_CHARACTER {&}
+AMP {&}
 BAD_CHARACTER {@}
 BAD_CHARACTER {+}
 BAD_CHARACTER {?}

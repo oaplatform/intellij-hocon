@@ -26,7 +26,7 @@ class HoconColorSettingsPage extends ColorSettingsPage {
        |    <null>null</null><comma>,</comma>
        |    <boolean>true</boolean><comma>,</comma>
        |    <number>123.4e5</number><comma>,</comma>
-       |    <unquotedstring>unquoted string </unquotedstring><badchar>*</badchar><comma>,</comma>
+       |    <unquotedstring>unquoted string </unquotedstring><badchar>^</badchar><comma>,</comma>
        |    <quotedstring>"quo</quotedstring><validstringescape>\\n</validstringescape><quotedstring>ted</quotedstring><invalidstringescape>\\d</invalidstringescape><quotedstring> string"</quotedstring><comma>,</comma>
        |    <substsign>$$</substsign><substbraces>{</substbraces><optsubstsign>?</optsubstsign><substkey>substitution</substkey><dot>.</dot><substkey>inner</substkey><substbraces>}</substbraces><comma>,</comma>
        |    <multilinestring>${"\"\"\""}multiline\n    multiline${"\"\"\""}</multilinestring><comma>,</comma>
@@ -36,6 +36,11 @@ class HoconColorSettingsPage extends ColorSettingsPage {
        |    <classpath>classpath</classpath><clparens>(</clparens><clresourceunresolved>/oap/files/missing.resource</clresourceunresolved><clparens>)</clparens>
        |  <brackets>]</brackets>
        |<braces>}</braces>
+       |
+       |<key>defaults</key><pathvalueseparator>:</pathvalueseparator> <anchorsign>&</anchorsign><anchorname>base_settings</anchorname> <braces>{</braces>
+       |  <key>timeout</key><pathvalueseparator>:</pathvalueseparator> <number>30</number>
+       |<braces>}</braces>
+       |<key>merged</key><pathvalueseparator>:</pathvalueseparator> <aliassign>*</aliassign><aliasname>base_settings</aliasname>
        |""".stripMargin.trim
 
   def getAdditionalHighlightingTagToDescriptorMap: util.Map[String, TextAttributesKey] = Map(
@@ -65,6 +70,10 @@ class HoconColorSettingsPage extends ColorSettingsPage {
     "clresourceunresolved" -> HHC.ClasspathResourceUnresolved,
     "substsign" -> HHC.SubstitutionSign,
     "optsubstsign" -> HHC.OptionalSubstitutionSign,
+    "anchorsign" -> HHC.AnchorSign,
+    "anchorname" -> HHC.AnchorName,
+    "aliassign" -> HHC.AliasSign,
+    "aliasname" -> HHC.AliasName,
     "unquotedstring" -> HHC.UnquotedString,
     "dot" -> HHC.PathSeparator,
     "key" -> HHC.EntryKey,
@@ -112,6 +121,10 @@ object HoconColorSettingsPage {
     "Classpath resource (not found)" -> HHC.ClasspathResourceUnresolved,
     "Substitution sign" -> HHC.SubstitutionSign,
     "Optional substitution sign" -> HHC.OptionalSubstitutionSign,
+    "Anchor sign ('&')" -> HHC.AnchorSign,
+    "Anchor name" -> HHC.AnchorName,
+    "Alias sign ('*')" -> HHC.AliasSign,
+    "Alias name" -> HHC.AliasName,
     "Unquoted string" -> HHC.UnquotedString,
     "Path separator" -> HHC.PathSeparator,
     "Key" -> HHC.EntryKey,

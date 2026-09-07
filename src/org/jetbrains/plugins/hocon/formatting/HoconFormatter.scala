@@ -135,11 +135,15 @@ class HoconFormatter(settings: CodeStyleSettings) {
       case (FieldKey, Equals | PlusEquals) =>
         normalSpacing(customSettings.SPACE_BEFORE_ASSIGNMENT)
 
-      case (Colon, Value.extractor()) =>
+      case (Colon, Value.extractor() | AnchorDef) =>
         normalSpacing(customSettings.SPACE_AFTER_COLON)
 
-      case (Equals | PlusEquals, Value.extractor()) =>
+      case (Equals | PlusEquals, Value.extractor() | AnchorDef) =>
         normalSpacing(customSettings.SPACE_AFTER_ASSIGNMENT)
+
+      // anchor name always followed by exactly one space before the value it tags (`&name { ... }`)
+      case (AnchorDef, Value.extractor()) =>
+        normalSpacing(shouldBeSpace = true)
 
       case (Dollar, SubLBrace) | (SubLBrace, QMark) =>
         Spacing.getReadOnlySpacing
@@ -272,7 +276,7 @@ class HoconFormatter(settings: CodeStyleSettings) {
       // so match order matters.
       case (ValuedField, BlockArray | BlockObject) =>
         Indent.getNoneIndent
-      case (Include, Included) | (ValuedField, KeyValueSeparator.extractor() | Value.extractor()) =>
+      case (Include, Included) | (ValuedField, KeyValueSeparator.extractor() | Value.extractor() | AnchorDef) =>
         Indent.getContinuationIndent
       case _ =>
         Indent.getNoneIndent

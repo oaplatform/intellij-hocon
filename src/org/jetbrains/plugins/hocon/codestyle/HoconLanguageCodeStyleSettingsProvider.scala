@@ -167,6 +167,10 @@ class HoconLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         |  block_object:
         |    key: value
         |    foo = bar
+        |defaults: &base_settings {
+        |  timeout: 30
+        |}
+        |merged: *base_settings
         | """.stripMargin.trim
 
     case SettingsType.WRAPPING_AND_BRACES_SETTINGS =>
@@ -195,6 +199,10 @@ class HoconLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         |    key = value
         |    nested:
         |      deeper = true
+        |defaults: &base_settings {
+        |  timeout: 30
+        |  retries: 3
+        |}
         | """.stripMargin.trim
 
     case SettingsType.BLANK_LINES_SETTINGS =>

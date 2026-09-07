@@ -77,6 +77,55 @@ class HoconResolutionTest extends HoconSingleModuleTest {
       |""".stripMargin,
   )
 
+  // Anchors/aliases/merge keys are a non-standard OAP extension (see HoconAnchors, HObjectEntries.occurrences) -
+  // exercised against a dedicated fixture, independent of application.conf's line/column-sensitive expectations.
+
+  def testAliasResolvesAnchorValue(): Unit = testPath(
+    "anchorsAndMerge.conf",
+    "merged.timeout",
+    """anchorsAndMerge.conf:2:2
+      |""".stripMargin,
+  )
+
+  def testMergeKeyContributesField(): Unit = testPath(
+    "anchorsAndMerge.conf",
+    "production.timeout",
+    """anchorsAndMerge.conf:2:2
+      |""".stripMargin,
+  )
+
+  def testMergeKeyContributesUnrelatedSibling(): Unit = testPath(
+    "anchorsAndMerge.conf",
+    "production.host",
+    """anchorsAndMerge.conf:10:2
+      |""".stripMargin,
+  )
+
+  // Sibling field always outranks the same key merged in via `<<`, regardless of textual position - matches
+  // YAML merge-key semantics. Checked directly against `occurrences` (both directions) rather than via
+  // `testPath`'s shared helper: that helper also walks the `ResolvedField.nextOccurrence` sibling-traversal
+  // chain (used e.g. by "go to next occurrence"), which - unlike bulk `occurrences` lookup - is not aware of
+  // merge-key-injected occurrences (out of scope for this non-standard extension's first pass; a merged-in
+  // occurrence is only reachable by resolving the whole path from scratch, not by stepping from another
+  // occurrence of the same key).
+  def testSiblingOverridesMergedField(): Unit = {
+    val hoconFile = findHoconFile("anchorsAndMerge.conf", project)
+    val ctx = ToplevelCtx(hoconFile)
+    val path = "overridden.timeout".split('.').toList
+    val expected =
+      """anchorsAndMerge.conf:2:2
+        |anchorsAndMerge.conf:15:2
+        |""".stripMargin
+
+    def render(reverse: Boolean): String = {
+      val rendered = ctx.occurrences(path, ResOpts(reverse)).map(_.trace)
+      (if (reverse) rendered.toList.reverseIterator else rendered).mkString("", "\n", "\n")
+    }
+
+    Assert.assertEquals(expected, render(reverse = true))
+    Assert.assertEquals(expected, render(reverse = false))
+  }
+
   def testFullPath(): Unit = testPath(
     "application.conf",
     "a.b.c",

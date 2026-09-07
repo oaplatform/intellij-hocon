@@ -19,6 +19,7 @@ class HoconParserDefinition extends ParserDefinition {
   override def spaceExistenceTypeBetweenTokens(left: ASTNode, right: ASTNode): SpaceRequirements =
     (left.getElementType, right.getElementType) match {
       case (Dollar, SubLBrace) | (SubLBrace, QMark) => SpaceRequirements.MUST_NOT
+      case (Amp, UnquotedChars) | (Star, UnquotedChars) => SpaceRequirements.MUST_NOT
       case _ => SpaceRequirements.MAY
     }
 
@@ -64,6 +65,8 @@ object HoconParserDefinition {
     case BlockArray => new HArray(ast)
     case BlockObject => new HObject(ast)
     case Substitution => new HSubstitution(ast)
+    case AnchorDef => new HAnchorDef(ast)
+    case Alias => new HAlias(ast)
     case Concatenation => new HConcatenation(ast)
     case UnquotedString => new HUnquotedString(ast)
     case StringValue => new HStringValue(ast)

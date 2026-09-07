@@ -1,0 +1,19 @@
+<settings/>
+-----
+defaults:&base_settings{
+  timeout=30
+}
+merged=*base_settings
+production{
+  <<:*base_settings
+  host="example.com"
+}
+-----
+defaults: &base_settings {
+  timeout = 30
+}
+merged = *base_settings
+production {
+  <<: *base_settings
+  host = "example.com"
+}

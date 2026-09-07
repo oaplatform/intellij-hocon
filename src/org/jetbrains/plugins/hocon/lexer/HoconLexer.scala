@@ -89,6 +89,8 @@ class HoconLexer extends LexerBase {
       input.charAt(tokenStart) match {
         case '$' => setNewToken(Dollar, 1, onDollar(stateAfter))
         case '?' if stateAfter == SubStarted => setNewToken(QMark, 1, Substitution)
+        case '&' => setNewToken(Amp, 1, onContents(stateAfter))
+        case '*' => setNewToken(Star, 1, onContents(stateAfter))
         case '{' =>
           stateAfter match {
             case SubStarting => setNewToken(SubLBrace, 1, SubStarted)

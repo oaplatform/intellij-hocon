@@ -20,7 +20,7 @@ import org.jetbrains.plugins.hocon.lang.HoconFileType
 import org.jetbrains.plugins.hocon.lexer.{HoconLexer, HoconTokenSets, HoconTokenType}
 import org.jetbrains.plugins.hocon.parser.HoconElementType
 import org.jetbrains.plugins.hocon.parser.HoconElementType.HoconFileElementType
-import org.jetbrains.plugins.hocon.ref.{HKeyReference, IncludedFileReferenceSet, PackageDirsEnumerator}
+import org.jetbrains.plugins.hocon.ref.{HAliasReference, HKeyReference, IncludedFileReferenceSet, PackageDirsEnumerator}
 import org.jetbrains.plugins.hocon.semantics.*
 
 import scala.annotation.tailrec
@@ -155,8 +155,31 @@ final class HObjectEntries(ast: ASTNode) extends HoconPsiElement(ast) with HEntr
 
   def moreEntries(reverse: Boolean): Iterator[HEntriesLike] = Iterator.empty
 
-  def occurrences(key: Option[String], opts: ResOpts, resCtx: ResolutionCtx): Iterator[ResolvedField] =
-    entries(opts.reverse).flatMap(_.occurrences(key, opts, resCtx))
+  def occurrences(key: Option[String], opts: ResOpts, resCtx: ResolutionCtx): Iterator[ResolvedField] = {
+    val direct = entries(opts.reverse).flatMap(_.occurrences(key, opts, resCtx))
+    val merged = mergeKeyOccurrences(key, opts, resCtx)
+    // Sibling fields defined directly in this object always outrank `<<`-merged-in ones (YAML merge-key
+    // semantics), so `direct` must come first in override-priority order (opts.reverse = true, winner first -
+    // see ResolvedField/`.trace` callers). Un-reversed (opts.reverse = false, plain document-order listing)
+    // must be the exact mirror - `merged` first - or callers that compare both orderings (e.g. HoconResolutionTest)
+    // see inconsistent results.
+    if (opts.reverse) direct ++ merged else merged ++ direct
+  }
+
+  /** `<<: *anchor` entries (non-standard OAP extension) splice the anchor's object fields into this object. Looked up
+    * here rather than via `HKeyedField.occurrences` because a merge-key field's own literal key is `"<<"`, never the
+    * requested key, so per-field matching there can never surface a merged-in field - merging is a "splice this whole
+    * object in" operation, not a single-key lookup.
+    */
+  private def mergeKeyOccurrences(key: Option[String], opts: ResOpts, resCtx: ResolutionCtx): Iterator[ResolvedField] =
+    entries(reverse = false)
+      .collectOnly[HObjectField]
+      .filter(_.keyedField.isMergeKeyField)
+      .flatMap(_.keyedField match {
+        case vf: HValuedField => vf.value.collectOnly[HAlias].flatMapIt(_.resolvedAnchorValue.iterator)
+        case _ => Iterator.empty
+      })
+      .flatMap(_.occurrences(key, opts, resCtx))
 
   def firstOccurrence(path: List[String], opts: ResOpts, resCtx: ResolutionCtx): Option[ResolvedField] =
     occurrences(path, opts, resCtx).nextOption()
@@ -245,6 +268,12 @@ sealed abstract class HKeyedField(ast: ASTNode)
 
   def hasKeyValue(key: String): Boolean =
     keyString.contains(key)
+
+  /** Whether this is a YAML-style merge-key field (`<<: *anchor`) - a non-standard OAP extension whose value's object
+    * fields get spliced into the enclosing object by [[HObjectEntries.mergeKeyOccurrences]], rather than being looked
+    * up under the literal key `"<<"`.
+    */
+  def isMergeKeyField: Boolean = hasKeyValue(HoconConstants.MergeKey)
 
   def sameKeyAs(other: HKeyedField): Boolean = (key zip other.key).exists { case (k1, k2) =>
     k1.stringValue == k2.stringValue
@@ -632,6 +661,8 @@ sealed trait HValue extends HoconPsiElement {
       conc.findChildren[HValue](opts.reverse).flatMap(_.occurrences(key, opts, resCtx))
     case subst: HSubstitution =>
       subst.resolve(opts, resCtx, backtrace = true).flatMap(_.occurrences(key, opts))
+    case alias: HAlias =>
+      alias.resolvedAnchorValue.iterator.flatMap(_.occurrences(key, opts, resCtx))
     case _ =>
       Iterator.empty
   }
@@ -657,6 +688,8 @@ sealed trait HValue extends HoconPsiElement {
         .map(_.resolveValue)
         .nextOption()
         .getOrElse(if (hs.optional) NoValue else InvalidValue)
+    case alias: HAlias =>
+      alias.resolvedAnchorValue.map(_.resolveValue(resCtx)).getOrElse(InvalidValue)
   }
 }
 
@@ -744,6 +777,41 @@ final class HSubstitution(ast: ASTNode) extends HoconPsiElement(ast) with HValue
       else
         res
     }
+}
+
+/** YAML-style anchor tag (`&name`), attached right after a [[HValuedField]]'s key/value separator, before its value.
+  * Non-standard OAP extension - resolved by name within the same file only (see `HoconAnchors`).
+  */
+final class HAnchorDef(ast: ASTNode) extends HoconPsiElement(ast) with PsiNameIdentifierOwner {
+  type Parent = HValuedField
+
+  def nameElement: Option[PsiElement] = Option(findChildByType[PsiElement](HoconTokenType.UnquotedChars))
+
+  def name: Option[String] = nameElement.map(_.getText)
+
+  /** The value this anchor tags - the sibling value of the enclosing field. */
+  def value: Option[HValue] = parent.value
+
+  override def getName: String = name.orNull
+  override def setName(name: String): PsiElement = throw new IncorrectOperationException
+  override def getNameIdentifier: PsiElement = nameElement.orNull
+
+  override def getIcon(flags: Int): Icon = PropertyIcon
+}
+
+/** YAML-style alias reference (`*name`), usable anywhere a value is expected. Resolves to the value tagged by the
+  * [[HAnchorDef]] of the same name earlier in the file. Non-standard OAP extension.
+  */
+final class HAlias(ast: ASTNode) extends HoconPsiElement(ast) with HValue {
+  def nameElement: Option[PsiElement] = Option(findChildByType[PsiElement](HoconTokenType.UnquotedChars))
+
+  def name: Option[String] = nameElement.map(_.getText)
+
+  def resolvedAnchorDef: Option[HAnchorDef] = name.flatMap(HoconAnchors.findAnchor(hoconFile, this, _))
+
+  def resolvedAnchorValue: Option[HValue] = resolvedAnchorDef.flatMap(_.value)
+
+  override def getReference: HAliasReference = new HAliasReference(this)
 }
 
 final class HConcatenation(ast: ASTNode) extends HoconPsiElement(ast) with HValue with HValueParent
