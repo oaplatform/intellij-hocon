@@ -5,8 +5,10 @@ import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.psi.PsiFile
-import com.intellij.testFramework.TestActionEvent
+import com.intellij.testFramework.{NavigationTestUtil, TestActionEvent}
 import org.junit.Assert.assertNotNull
+
+import scala.annotation.nowarn
 
 /** @author
   *   ghik
@@ -24,6 +26,9 @@ abstract class HoconActionTest protected (protected val actionId: String, subPat
     val psiFile = createPseudoPhysicalHoconFile(fileText)
 
     val editorManager = FileEditorManager.getInstance(myProject)
+    // The non-deprecated replacement (requestOpenTextEditor) is asynchronous and completes on the EDT,
+    // which this test is already running on - so the blocking variant is the one that fits here.
+    @nowarn("msg=deprecated")
     val editor: Editor =
       editorManager.openTextEditor(new OpenFileDescriptor(myProject, psiFile.getVirtualFile, 0), false)
     assertNotNull(editor)
@@ -31,6 +36,8 @@ abstract class HoconActionTest protected (protected val actionId: String, subPat
 
     try {
       executeAction(mockDataContext(psiFile, editor), editor)
+      // Since 2026.3 navigation actions (e.g. Go to Declaration) move the caret asynchronously.
+      NavigationTestUtil.awaitPendingNavigationIfEnabled(myProject)
       extractResult(psiFile, editor)
     } finally {
       editorManager.closeFile(psiFile.getVirtualFile)

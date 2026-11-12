@@ -2,8 +2,8 @@ import org.jetbrains.sbtidea.Keys._
 
 ThisBuild / scalaVersion := "3.3.8"
 ThisBuild / intellijPluginName := "oap-intellij-hocon"
-ThisBuild / intellijBuild := "261.25134.232"
-ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("24"))
+ThisBuild / intellijBuild := "263.7307.200"
+ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("25"))
 // Cache the IntelliJ SDK (~800MB) that the sbt-idea-plugin downloads on build load; the default
 // sbt cache doesn't cover it. Keyed on build.sbt so an intellijBuild bump invalidates the entry.
 ThisBuild / githubWorkflowBuildPreamble += WorkflowStep.Use(
@@ -41,6 +41,8 @@ lazy val hocon = project
     // Matches HoconSingleModuleTest's rootPath, so classpath(...)/include resolution behaves the same
     // when editing these fixtures directly in this IDE window as it does under the JUnit sandbox.
     Test / unmanagedResourceDirectories += baseDirectory.value / "testdata" / "includes" / "singlemodule",
+    // Built on JDK 25 (2026.3 platform classes are Java 25 bytecode) but still emitting Java 24 bytecode,
+    // as before the platform bump.
     Global / javacOptions ++= Seq("--release", "24"),
     Global / scalacOptions ++= Seq(
       "-release",
@@ -51,8 +53,24 @@ lazy val hocon = project
       "-Xfatal-warnings",
     ),
     ideBasePackages := Seq("org.jetbrains.plugins.hocon"),
-    intellijPlugins := Seq("com.intellij.java", "com.intellij.java-i18n", "com.intellij.modules.json").map(_.toPlugin),
-    intellijExtraRuntimePluginsInTests := Seq("org.jetbrains.kotlin").map(_.toPlugin),
+    // com.intellij.structureView: since 2026.3 the structure view API (PsiTreeElementBase etc) lives in
+    // its own bundled plugin rather than in the platform core.
+    intellijPlugins := Seq(
+      "com.intellij.java",
+      "com.intellij.java-i18n",
+      "com.intellij.modules.json",
+      "com.intellij.structureView",
+    ).map(_.toPlugin),
+    // Everything after Kotlin: since 2026.3 these are separate bundled plugins that the Java plugin and
+    // the platform core need in order to load in the test sandbox.
+    intellijExtraRuntimePluginsInTests := Seq(
+      "org.jetbrains.kotlin",
+      "com.intellij.xml",
+      "com.intellij.platform.vcs",
+      "intellij.java.aetherDependencyResolver.plugin",
+      "com.intellij.platform.testRunner",
+      "com.intellij.properties",
+    ).map(_.toPlugin),
     resolvers += "JetBrains Intellij Repository".at("https://www.jetbrains.com/intellij-repository/snapshots"),
     libraryDependencies ++= Seq(
       "org.apache.commons" % "commons-text" % commonsTextVersion,

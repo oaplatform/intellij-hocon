@@ -7,8 +7,8 @@ import org.jetbrains.plugins.hocon.psi.HAlias
 import org.jetbrains.plugins.hocon.semantics.HoconAnchors
 
 /** Reference from a `*name` alias (non-standard OAP extension) to its `&name` anchor definition. Unlike
-  * [[HKeyReference]], this is a single reference for the whole alias token, not one per dotted-path segment -
-  * aliases are a single name, not a path.
+  * [[HKeyReference]], this is a single reference for the whole alias token, not one per dotted-path segment - aliases
+  * are a single name, not a path.
   */
 class HAliasReference(alias: HAlias) extends PsiReference {
   def getElement: PsiElement = alias

@@ -4,8 +4,8 @@ package semantics
 import org.jetbrains.plugins.hocon.psi.{HAnchorDef, HoconPsiElement, HoconPsiFile}
 
 /** Lookup for YAML-style anchor definitions (`&name`, non-standard OAP extension - see `HoconElementType.AnchorDef`).
-  * Deliberately file-scoped and name-based only, not integrated into `ResolutionCtx`'s include/candidate-file
-  * graph like substitutions are - anchors do not resolve across files.
+  * Deliberately file-scoped and name-based only, not integrated into `ResolutionCtx`'s include/candidate-file graph
+  * like substitutions are - anchors do not resolve across files.
   */
 object HoconAnchors {
   def anchorsInFile(file: HoconPsiFile): Iterator[HAnchorDef] =
