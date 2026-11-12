@@ -10,6 +10,7 @@
   * [Block objects](#block-objects)
   * [Block scalars](#block-scalars)
   * [`classpath(...)` value construct](#classpath-value-construct)
+  * [Anchors, aliases and merge keys](#anchors-and-aliases)
 
 ## Features and usage instructions
 
@@ -178,4 +179,25 @@ extensions are modeled after and meant to stay compatible with.
   Supports navigation (`Ctrl`+click / go-to-declaration) to the resolved resource, is flagged by an
   inspection when the resource cannot be found on the classpath, and stays in sync automatically when the
   target resource is renamed or moved in the IDE. The path is unquoted only (no `classpath("...")` form).
+
+* <a id="anchors-and-aliases"></a>**Anchors, aliases and merge keys** - YAML-style value reuse: `&name` right
+  after a field's `:`/`=`/`+=`, before its value, tags that value with an anchor; `*name` used anywhere a
+  value is expected substitutes the anchored value; `<<: *name` as an object entry merges the anchor's object
+  fields into the enclosing object (fields already present in the enclosing object take precedence over
+  merged-in ones, matching YAML merge-key semantics):
+
+  ```hocon
+  defaults: &base_settings {
+    timeout: 30
+    retries: 3
+  }
+
+  production: {
+    <<: *base_settings
+    host: "example.com"
+  }
+  ```
+
+  Supports go-to-declaration and find-usages between `*name` and its `&name` definition, and read/write
+  usage highlighting. Anchors are resolved by name within the same file only - not across `include`d files.
   

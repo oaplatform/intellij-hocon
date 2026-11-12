@@ -1,0 +1,17 @@
+a = *
+-----
+HOCON_FILE
+  HObjectEntries(OBJECT_ENTRIES)
+    HObjectField(OBJECT_FIELD)
+      HValuedField(VALUED_FIELD)
+        HFieldKey(FIELD_KEY)
+          HKeyPart(KEY_PART)
+            HUnquotedString(UNQUOTED_STRING)
+              PsiElement(UNQUOTED_CHARS)('a')
+        PsiWhiteSpace(' ')
+        PsiElement(EQUALS)('=')
+        PsiWhiteSpace(' ')
+        HAlias(ALIAS)
+          PsiElement(STAR)('*')
+          PsiErrorElement:expected anchor name
+            <empty list>

@@ -26,6 +26,8 @@ object HoconTokenType extends TokenType {
   final val SubLBrace = new HoconTokenType("SUB_LBRACE")
   final val QMark = new HoconTokenType("QMARK")
   final val SubRBrace = new HoconTokenType("SUB_RBRACE")
+  final val Amp = new HoconTokenType("AMP")
+  final val Star = new HoconTokenType("STAR")
   final val HashComment = new HoconTokenType("HASH_COMMENT")
   final val DoubleSlashComment = new HoconTokenType("DOUBLE_SLASH_COMMENT")
   final val UnquotedChars = new HoconTokenType("UNQUOTED_CHARS")

@@ -5,7 +5,7 @@ import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.psi.search.ProjectScope
 import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl
-import org.jetbrains.plugins.hocon.psi.HKey
+import org.jetbrains.plugins.hocon.psi.{HAnchorDef, HKey}
 import org.junit.Assert.assertEquals
 import org.junit.Ignore
 
@@ -69,6 +69,18 @@ class HoconFindUsagesTest extends HoconMultiModuleTest {
       """modA/lib/reference.conf:8:13
         |modA/libsrc/reference.conf:8:13
         |modA/src/application.conf:4:13
+        |""".stripMargin,
+    )
+
+  // Anchor/alias (non-standard OAP extension) find-usages is file-local, unlike HKey usages above - a dedicated
+  // fixture file keeps it independent of expectedHoconUsages' exact line/column expectations.
+  def testAnchorUsages(): Unit =
+    testFindUsages[HAnchorDef](
+      "modA/src/anchors.conf",
+      1,
+      12,
+      """modA/src/anchors.conf:5:11
+        |modA/src/anchors.conf:6:12
         |""".stripMargin,
     )
 

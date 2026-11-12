@@ -8,6 +8,7 @@ object HoconConstants {
   final val True = "true"
   final val False = "false"
   final val Include = "include"
+  final val MergeKey = "<<"
 
   final val UrlModifier = "url"
   final val FileModifier = "file"

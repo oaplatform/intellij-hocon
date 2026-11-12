@@ -132,6 +132,25 @@ object HoconElementType {
     */
   val Substitution = new HoconElementType("SUBSTITUTION")
 
+  /** YAML-style anchor definition, `&name`, attached right after a [[ValuedField]]'s key/value separator, before its
+    * value:
+    *
+    * {{{
+    *   defaults: &base_settings { timeout: 30 }
+    * }}}
+    *
+    * Non-standard OAP extension - not part of the HOCON/Typesafe Config spec.
+    */
+  val AnchorDef = new HoconElementType("ANCHOR_DEF")
+
+  /** YAML-style alias reference, `*name`, usable anywhere a value is expected. Resolves to the value tagged by the
+    * [[AnchorDef]] of the same name earlier in the file (or, as a merge-key value in `<<: *name`, splices that value's
+    * object fields into the enclosing object).
+    *
+    * Non-standard OAP extension - not part of the HOCON/Typesafe Config spec.
+    */
+  val Alias = new HoconElementType("ALIAS")
+
   /** Concatenation of two or more HOCON values.
     */
   val Concatenation = new HoconElementType("CONCATENATION")

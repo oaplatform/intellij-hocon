@@ -36,18 +36,23 @@ class HoconFindUsagesProvider extends FindUsagesProvider {
 
   def canFindUsagesFor(psiElement: PsiElement): Boolean = psiElement match {
     case hkey: HKey => hkey.isValidKey
+    case _: HAnchorDef => true
     case _ => false
   }
 
   def getHelpId(psiElement: PsiElement): String = HelpID.FIND_OTHER_USAGES
 
-  def getType(element: PsiElement): String = "config property"
+  def getType(element: PsiElement): String = element match {
+    case _: HAnchorDef => "anchor"
+    case _ => "config property"
+  }
 
   def getDescriptiveName(element: PsiElement): String =
     getNodeText(element, useFullName = true)
 
   def getNodeText(element: PsiElement, useFullName: Boolean): String = element match {
     case key: HKey => key.fullPathText.orNull
+    case anchorDef: HAnchorDef => anchorDef.name.map(n => s"&$n").orNull
     case _ => null
   }
 }
@@ -55,6 +60,7 @@ class HoconFindUsagesProvider extends FindUsagesProvider {
 class HoconFindUsagesHandlerFactory extends FindUsagesHandlerFactory {
   def canFindUsages(element: PsiElement): Boolean = element match {
     case hkey: HKey => hkey.isValidKey
+    case _: HAnchorDef => true
     case _ => false
   }
 
@@ -85,6 +91,8 @@ class HoconFindUsagesHandler(element: PsiElement) extends FindUsagesHandler(elem
             }
           }
         }
+      // HAnchorDef needs no manual case here: HAlias.getReference (HAliasReference) already resolves to it,
+      // so the default reference-search below (super.processElementUsages) finds every *name alias on its own.
       case _ => true
     }
     res && super.processElementUsages(element, processor, options)

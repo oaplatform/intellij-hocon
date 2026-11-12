@@ -262,6 +262,9 @@ class HoconPsiParser extends PsiParser {
         if (matches(LBrace)) {
           parseObject()
         } else if (pass(KeyValueSeparator)) {
+          if (matches(Amp)) {
+            parseAnchorDef()
+          }
           if (matchesBlockArrayDash(startColumn)) {
             parseBlockArrayValue(startColumn)
           } else if (matchesBlockObjectStart(startColumn)) {
@@ -276,6 +279,18 @@ class HoconPsiParser extends PsiParser {
       }
 
       setEdgeTokenBinders(marker, first, nonGreedyRight = true)
+    }
+
+    // `&name` anchor tag, non-standard OAP extension - see HoconElementType.AnchorDef.
+    def parseAnchorDef(): Unit = {
+      val marker = builder.mark()
+      advanceLexer() // '&'
+      if (matches(UnquotedChars.noNewLine)) {
+        advanceLexer()
+      } else {
+        builder.error("expected anchor name")
+      }
+      marker.done(AnchorDef)
     }
 
     def parsePath(prefixMarker: Option[Marker] = None): Unit = {
@@ -406,6 +421,8 @@ class HoconPsiParser extends PsiParser {
             parseArray()
           } else if (matches(Dollar) && builder.lookAhead(1) == SubLBrace) {
             parseSubstitution()
+          } else if (matches(Star)) {
+            parseAlias()
           } else if (tryParseClasspathReference) {
             // consumed
           } else if (matches(ValueUnquotedChars)) {
@@ -629,6 +646,18 @@ class HoconPsiParser extends PsiParser {
       pass(SubRBrace)
 
       marker.done(Substitution)
+    }
+
+    // `*name` alias reference, non-standard OAP extension - see HoconElementType.Alias.
+    def parseAlias(): Unit = {
+      val marker = builder.mark()
+      advanceLexer() // '*'
+      if (matches(UnquotedChars.noNewLine)) {
+        advanceLexer()
+      } else {
+        builder.error("expected anchor name")
+      }
+      marker.done(Alias)
     }
 
   }

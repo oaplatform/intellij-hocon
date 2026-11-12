@@ -33,6 +33,12 @@ class HoconSyntaxHighlightingAnnotator extends Annotator {
       case UnquotedChars if parentType == Include =>
         annot(HoconHighlighterColors.Include)
 
+      case UnquotedChars if parentType == AnchorDef =>
+        annot(HoconHighlighterColors.AnchorName)
+
+      case UnquotedChars if parentType == Alias =>
+        annot(HoconHighlighterColors.AliasName)
+
       case UnquotedChars if parentType == Included || parentType == QualifiedIncluded =>
         annot(HoconHighlighterColors.IncludeModifier)
 

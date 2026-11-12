@@ -39,6 +39,8 @@ object HoconSyntaxHighlighter extends SyntaxHighlighter {
     PlusEquals -> Array(HHC.KeyValueSeparator),
     Dollar -> Array(HHC.SubstitutionSign),
     QMark -> Array(HHC.OptionalSubstitutionSign),
+    Amp -> Array(HHC.AnchorSign),
+    Star -> Array(HHC.AliasSign),
     UnquotedChars -> Array(HHC.UnquotedString),
     Period -> Array(HHC.UnquotedString),
     LParen -> Array(HHC.UnquotedString),
